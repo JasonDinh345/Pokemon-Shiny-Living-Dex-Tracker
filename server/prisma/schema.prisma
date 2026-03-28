@@ -4,7 +4,6 @@ generator client {
 
 datasource db {
   provider = "mysql"
-  url      = env("DATABASE_URL")
 }
 
 model caught_shinies {
@@ -23,9 +22,13 @@ model caught_shinies {
 }
 
 model refresh_tokens {
-  token      String @db.VarChar(255)
-  user_email String @id @db.VarChar(255)
-  users      users  @relation(fields: [user_email], references: [email], onDelete: Cascade, map: "user_email_foreign")
+  token      String   @unique(map: "token") @db.VarChar(255)
+  user_email String   @db.VarChar(255)
+  id         Int      @id @default(autoincrement())
+  expires_on DateTime @db.DateTime(0)
+  users      users    @relation(fields: [user_email], references: [email], onDelete: Cascade, map: "user_email_foreign_rt")
+
+  @@index([user_email], map: "user_email_foreign_rt")
 }
 
 model users {
@@ -34,7 +37,7 @@ model users {
   password            String               @db.VarChar(255)
   verified            Boolean              @default(false)
   caught_shinies      caught_shinies[]
-  refresh_tokens      refresh_tokens?
+  refresh_tokens      refresh_tokens[]
   verification_tokens verification_tokens?
 }
 
