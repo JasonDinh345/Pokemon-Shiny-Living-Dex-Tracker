@@ -1,0 +1,40 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model caught_shinies {
+  pokemon_name Int
+  user_email   String    @db.VarChar(255)
+  method_id    Int
+  nickname     Int?
+  hunt_started DateTime? @db.Date
+  date_caught  DateTime? @db.Date
+  gen          String    @db.VarChar(10)
+  encounters   Int?
+  id           Int       @id @default(autoincrement())
+  users        users     @relation(fields: [user_email], references: [email], onDelete: Cascade, map: "user_email_foreign2")
+
+  @@index([user_email], map: "user_email_foreign2")
+}
+
+model refresh_tokens {
+  token      String @db.VarChar(255)
+  user_email String @id @db.VarChar(255)
+  users      users  @relation(fields: [user_email], references: [email], onDelete: Cascade, map: "user_email_foreign")
+}
+
+model users {
+  username           String           @db.VarChar(255)
+  email              String           @id @db.VarChar(255)
+  password           String           @db.VarChar(255)
+  verified           Boolean          @default(false)
+  verification_token String?          @db.VarChar(64)
+  token_expires_at   DateTime?        @db.DateTime(0)
+  caught_shinies     caught_shinies[]
+  refresh_tokens     refresh_tokens?
+}
