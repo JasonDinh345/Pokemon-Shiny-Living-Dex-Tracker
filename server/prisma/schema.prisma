@@ -32,18 +32,24 @@ model refresh_tokens {
 }
 
 model users {
-  username            String               @db.VarChar(255)
-  email               String               @id @db.VarChar(255)
-  password            String               @db.VarChar(255)
-  verified            Boolean              @default(false)
-  caught_shinies      caught_shinies[]
-  refresh_tokens      refresh_tokens[]
-  verification_tokens verification_tokens?
+  username       String           @db.VarChar(255)
+  email          String           @id @db.VarChar(255)
+  password       String           @db.VarChar(255)
+  verified       Boolean          @default(false)
+  caught_shinies caught_shinies[]
+  refresh_tokens refresh_tokens[]
+  tokens         tokens?
 }
 
-model verification_tokens {
-  token      String   @db.VarChar(255)
-  expires_on DateTime @db.Date
-  user_email String   @id @db.VarChar(255)
-  users      users    @relation(fields: [user_email], references: [email], onDelete: Cascade, map: "user_email_foreign3")
+model tokens {
+  token      String      @db.VarChar(255)
+  expires_on DateTime    @db.Date
+  user_email String      @id @db.VarChar(255)
+  type       tokens_type
+  users      users       @relation(fields: [user_email], references: [email], onDelete: Cascade, map: "user_email_foreign3")
+}
+
+enum tokens_type {
+  EMAIL_VERIFICATION
+  RESET_PASS
 }

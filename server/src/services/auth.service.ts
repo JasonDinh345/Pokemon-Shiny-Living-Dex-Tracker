@@ -1,10 +1,11 @@
-import "dotenv/config";
+import { ENV } from "../config/env";
 import prisma from "../lib/prisma";
 import User from "../types/users.type";
 import bcrypt from 'bcrypt'
 import crypto from "crypto"
 import jwt from "jsonwebtoken"
 import RefreshToken from "../types/refresh_tokens.type";
+
 export const login = async (email: string, password: string): Promise<{email: string, username: string}| undefined> =>{
     try{
         if(!email || !password){
@@ -14,7 +15,7 @@ export const login = async (email: string, password: string): Promise<{email: st
             where: {email}
         })
         if(!user){
-            throw new Error("USER_NOT_FOUND")
+            throw new Error("INVALID")
         }
         const isMatch = await bcrypt.compare(password, user.password);
         if(!isMatch){
@@ -22,7 +23,9 @@ export const login = async (email: string, password: string): Promise<{email: st
         }
         return {email, username: user.username };
     }catch(err){
-
+        if (err instanceof Error) {
+            throw new Error(err.message)
+        }
     }
 }
 export const deleteOldTokens = async () : Promise<void> =>{
@@ -35,7 +38,7 @@ export const deleteOldTokens = async () : Promise<void> =>{
 export const createTokens = async(email: string) : Promise<{accessToken : string, refreshToken: string} | undefined> =>{
     try{
         const accessToken: string = generateAccessToken(email);
-        const refreshToken: string = jwt.sign({email, jti: crypto.randomUUID()}, process.env.REFRESH_TOKEN_SECRET!, { expiresIn: '7d' });
+        const refreshToken: string = jwt.sign({email, jti: crypto.randomUUID()}, ENV.REFRESH_TOKEN_SECRET, { expiresIn: '7d' });
         await prisma.refresh_tokens.create({
             data: {
                 token: refreshToken,
@@ -45,7 +48,7 @@ export const createTokens = async(email: string) : Promise<{accessToken : string
         })
         return {accessToken, refreshToken}
     }catch(error){
-
+        throw new Error();
     }
 } 
 export const getRefreshToken = async(token : string) : Promise<RefreshToken | undefined> =>{
@@ -57,10 +60,10 @@ export const getRefreshToken = async(token : string) : Promise<RefreshToken | un
         })
         return existingToken ? existingToken : undefined;
     }catch(error){
-
+        throw new Error();
     }
 }
 
 export const generateAccessToken = (email: string): string => {
-        return jwt.sign({email}, process.env.ACCESS_TOKEN_SECRET!, {expiresIn: '15min'})
+        return jwt.sign({email}, ENV.ACCESS_TOKEN_SECRET, {expiresIn: '15min'})
 }

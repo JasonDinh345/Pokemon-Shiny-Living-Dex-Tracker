@@ -1,4 +1,4 @@
-import "dotenv/config";
+import { ENV } from '../config/env';
 import { Request, Response } from "express"
 import prisma from "../lib/prisma";
 
@@ -13,8 +13,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
         const {email, password} = req.body as {email: string, password: string};
         const user : {email: string, username: string} | undefined = await authService.login(email, password)
         if(!user){
-            res.status(401).json("Incorrect password!");
-            return;
+            throw new Error("INVALID")
         }
         
         //deletes all old refresh tokens if they didnt logout
@@ -25,18 +24,28 @@ export const login = async (req: Request, res: Response): Promise<void> => {
         }
         res.cookie('refreshToken', tokens.refreshToken, {
             httpOnly: true, 
-                secure: process.env.PROJECT_STATUS === 'production', 
+                secure: ENV.PROJECT_STATUS === 'production', 
                 sameSite: 'strict', 
                 maxAge: 7 * 24 * 60 * 60 * 1000, 
             });
         res.cookie('accessToken', tokens.accessToken, {
             httpOnly: true,
-            secure: process.env.PROJECT_STATUS === 'production', 
+            secure: ENV.PROJECT_STATUS === 'production', 
             sameSite: 'strict',
             maxAge: 15 * 60 * 1000
         });
         res.status(200).json({ email: user.email, username: user.username })
     }catch(error){
+        if(error instanceof Error){
+            switch(error.message){
+                case "INVALID_FIELDS":
+                    res.status(400).json({error: "Invalid fields!"})
+                    break;
+                case "INVALID":
+                    res.status(401).json({error: "Email is invalid or the password is incorrect!"})
+                    break;
+            }
+        }
         res.status(500).json({ error: 'Something went wrong' });
     }
 
@@ -84,7 +93,7 @@ export const getNewToken = async (req: Request, res: Response): Promise<void> =>
             res.clearCookie('refreshToken');
             return;
         }
-        jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET!, (err, decoded)=>{
+        jwt.verify(refreshToken, ENV.REFRESH_TOKEN_SECRET!, (err, decoded)=>{
             if(err){
                 res.status(401).json({message:"Refresh token is not valid"})
                 return;
@@ -93,7 +102,7 @@ export const getNewToken = async (req: Request, res: Response): Promise<void> =>
             const accessToken = authService.generateAccessToken(user.email)
             res.cookie('accessToken', accessToken, {
                 httpOnly: true,
-                secure: process.env.PROJECT_STATUS === 'production', 
+                secure: ENV.PROJECT_STATUS === 'production', 
                 sameSite: 'strict',
                 maxAge: 15 * 60 * 1000
             });
