@@ -7,7 +7,7 @@ export const registerUser = async (req: Request, res: Response) => {
         const {username, email, password} = req.body;
         const addedUser: boolean | undefined = await userService.registerUser(username, email, password);
         if(!addedUser){
-            res.json(400).json({error: "Email already in use!"});
+            res.json(409).json({error: "Email already in use!"});
             return;
         }
         res.status(201).json({message: "User Created"})
@@ -38,6 +38,8 @@ export const updateUser = async (req: Request, res: Response) => {
                 case "USER_NOT_FOUND":
                     res.status(404).json({error: "User not found!"});
                     break;
+                case "EMAIL_IN_USE":
+                    res.status(409).json({error: "Email already in use"});
             }
         }
         res.status(500).json({error: "Something went wrong!"})

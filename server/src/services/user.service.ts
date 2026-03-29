@@ -78,6 +78,8 @@ export const updateUser = async(user:Partial<User>): Promise<boolean>  =>{
       switch(error.code){
         case "P2025":
           throw new Error("USER_NOT_FOUND")
+        case "P2002":
+          throw new Error("EMAIL_IN_USE")
       }
     }
     throw new Error("Failed to update user");

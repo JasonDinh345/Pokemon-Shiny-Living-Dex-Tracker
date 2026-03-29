@@ -7,15 +7,15 @@ datasource db {
 }
 
 model caught_shinies {
-  pokemon_name Int
+  pokemon_name String    @db.VarChar(50)
   user_email   String    @db.VarChar(255)
-  method_id    Int
-  nickname     Int?
+  method       String    @db.VarChar(50)
+  nickname     String?   @db.VarChar(50)
   hunt_started DateTime? @db.Date
   date_caught  DateTime? @db.Date
-  gen          String    @db.VarChar(10)
   encounters   Int?
   id           Int       @id @default(autoincrement())
+  game         String    @db.VarChar(50)
   users        users     @relation(fields: [user_email], references: [email], onDelete: Cascade, map: "user_email_foreign2")
 
   @@index([user_email], map: "user_email_foreign2")
