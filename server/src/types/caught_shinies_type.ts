@@ -8,4 +8,4 @@ export default interface CaughtShiny{
     game: string,
     id: number
 }
-
+export type ShinyWithCount = CaughtShiny & {count: number} 

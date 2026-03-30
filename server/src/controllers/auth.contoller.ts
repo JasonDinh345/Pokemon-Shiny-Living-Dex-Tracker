@@ -1,13 +1,32 @@
 import { ENV } from '../config/env';
-import { Request, Response } from "express"
+import { NextFunction, Request, Response } from "express"
 import prisma from "../lib/prisma";
 
 
-import jwt from "jsonwebtoken"
+import jwt, { JwtPayload, VerifyErrors } from "jsonwebtoken"
 
 import { Prisma } from "@prisma/client";
 import RefreshToken from "../types/refresh_tokens.type";
 import * as authService from "../services/auth.service"
+
+
+export const authenticateToken =  (req:Request, res: Response, next: NextFunction) =>{
+        const accessToken = req.cookies.accessToken;
+        
+        if(!accessToken){
+            res.status(403).json("Token cannot be null or undefined")
+            return;
+        }
+        jwt.verify(accessToken, ENV.ACCESS_TOKEN_SECRET, ((err :VerifyErrors | null, decoded: JwtPayload | string | undefined)=>{
+            if(err){
+                res.status(401).json({message:"Token can't be verified"})
+                return;
+            }
+            
+            req.user = decoded as {email: string}
+            next()
+        }))
+}
 export const login = async (req: Request, res: Response): Promise<void> => {
     try{
         const {email, password} = req.body as {email: string, password: string};
@@ -93,7 +112,7 @@ export const getNewToken = async (req: Request, res: Response): Promise<void> =>
             res.clearCookie('refreshToken');
             return;
         }
-        jwt.verify(refreshToken, ENV.REFRESH_TOKEN_SECRET!, (err, decoded)=>{
+        jwt.verify(refreshToken, ENV.REFRESH_TOKEN_SECRET, (err, decoded)=>{
             if(err){
                 res.status(401).json({message:"Refresh token is not valid"})
                 return;

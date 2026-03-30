@@ -1,6 +1,9 @@
-import { Request, Response } from "express"
+import { ENV } from "../config/env";
+import { NextFunction, Request, Response } from "express"
 import * as userService from "..//services/user.service"
 import User from "../types/users.type";
+import jwt from "jsonwebtoken"
+
 
 export const registerUser = async (req: Request, res: Response) => {
     try{
