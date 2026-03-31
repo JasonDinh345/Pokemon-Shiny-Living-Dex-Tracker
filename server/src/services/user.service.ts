@@ -40,6 +40,9 @@ export const registerUser = async(username: string, email: string, password: str
 }
 export const resetPassword = async(email: string) =>{
   try{
+    if(!email){
+      throw new Error("NOT_AUTH")
+    }
     const user: User | null= await prisma.users.findUnique({
       where:{email}
     })
@@ -58,12 +61,18 @@ export const resetPassword = async(email: string) =>{
           });
           await sendResetPassEmail(email, token);
         });
-  }catch(err){
+  }catch(error){
+    if(error instanceof Error){
+      throw new Error(error.message)
+    }
     throw new Error();
   }
 }
-export const updateUser = async(user:Partial<User>): Promise<boolean>  =>{
+export const updateUser = async(user:Partial<User>, email: string): Promise<boolean>  =>{
   try{
+    if(!email){
+      throw new Error("NOT_AUTH")
+    }
     if(user.password){
       const hashedPass = await bcrypt.hash(user.password!, 10);
       user.password = hashedPass;
@@ -81,6 +90,8 @@ export const updateUser = async(user:Partial<User>): Promise<boolean>  =>{
         case "P2002":
           throw new Error("EMAIL_IN_USE")
       }
+    }else if (error instanceof Error){
+      throw new Error(error.message)
     }
     throw new Error("Failed to update user");
   }
@@ -95,7 +106,7 @@ export const deleteUser = async(email: string): Promise<boolean> =>{
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       switch(error.code){
         case "P2025":
-          throw new Error("USER_NOT_FOUND")
+          throw new Error("NOT_AUTH")
       }
     }
     throw new Error("Failed to update user");

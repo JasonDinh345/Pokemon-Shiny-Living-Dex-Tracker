@@ -1,7 +1,9 @@
-export declare global {
-    namespace Express {
-      interface Request {
-        user?: Partial<User>; 
-      }
+declare global {
+  namespace Express {
+    interface Request {
+      user?: { email: string };
     }
   }
+}
+
+export {}

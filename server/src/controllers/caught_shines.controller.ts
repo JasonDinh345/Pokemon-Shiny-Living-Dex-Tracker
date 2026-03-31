@@ -4,9 +4,9 @@ import * as caughtShinyService from "../services/caught_shinies.service"
 
 export const addNewShiny = async(req: Request, res: Response) =>{
     try{
-        const user = req.user
+        const {email} = req.user!
         const pokemonData = req.body
-        const pokemon : CaughtShiny = await caughtShinyService.addNewShiny(pokemonData, user.email)
+        const pokemon : CaughtShiny = await caughtShinyService.addNewShiny(pokemonData, email)
         res.status(201).json(pokemon)
     }catch(error){
         if(error instanceof Error){
@@ -29,8 +29,8 @@ export const addNewShiny = async(req: Request, res: Response) =>{
 }
 export const getAllShiniesOfUser = async(req: Request, res: Response) =>{
     try{
-        const user = req.user
-        const shinies: ShinyWithCount[] = await caughtShinyService.getAllShiniesOfUser(user.email)
+        const {email} = req.user!
+        const shinies: ShinyWithCount[] = await caughtShinyService.getAllShiniesOfUser(email)
         res.status(200).json(shinies)
     }catch(error){
         if(error instanceof Error){
@@ -49,9 +49,9 @@ export const getAllShiniesOfUser = async(req: Request, res: Response) =>{
 }
 export const getShinyOfUser = async(req: Request, res: Response) => {
     try{
-        const user = req.user
-        const {id} = req.body as {id: number}
-        const shiny: CaughtShiny | null = await caughtShinyService.getShinyOfUser(user.email, id)
+        const {email} = req.user!
+        const {id} = req.params
+        const shiny: CaughtShiny | null = await caughtShinyService.getShinyOfUser(email, Number(id))
         if(!shiny){
             res.status(404).json({error: `Unknown Pokemon with ID: ${id}`})
             return;
@@ -74,9 +74,10 @@ export const getShinyOfUser = async(req: Request, res: Response) => {
 }
 export const updateShiny = async(req: Request, res: Response) =>{
      try{
-        const user = req.user
+        const {email} = req.user!
+        const {id} = req.params
         const data = req.body as Partial<CaughtShiny>
-        const updateShiny: CaughtShiny = await caughtShinyService.updateShiny(user.email, data)
+        const updateShiny: CaughtShiny = await caughtShinyService.updateShiny(email, data, Number(id))
         
         res.status(204).json(updateShiny)
     }catch(error){
@@ -97,11 +98,11 @@ export const updateShiny = async(req: Request, res: Response) =>{
         }
     }
 }
-export const deleteShinies = async(req: Request, res: Response) =>{
+export const deleteShiny = async(req: Request, res: Response) =>{
     try{
-        const user = req.user
-        const {ids} = req.body as {ids : number[]}
-        await caughtShinyService.deleteShinies(user.email, ids)
+        const {email} = req.user!
+        const {id} = req.params
+        await caughtShinyService.deleteShiny(email, Number(id))
         
         res.status(204).json({message: "Deleted shinies!"})
     }catch(error){

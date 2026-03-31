@@ -81,15 +81,12 @@ export const getShinyOfUser = async(email: string, id: number):Promise<CaughtShi
         throw new Error();
     }
 }
-export const updateShiny = async(email: string, pokemon: Partial<CaughtShiny>): Promise<CaughtShiny>=>{
+export const updateShiny = async(email: string, pokemon: Partial<Omit<CaughtShiny, "id">>, id: number): Promise<CaughtShiny>=>{
     try{
-        if(!pokemon.id){
-            throw new Error("INVALID_ID")
-        }
-        const {id, ...updatedData} = pokemon;
+        
         const updatedPokemon: CaughtShiny = await prisma.caught_shinies.update({
-            where:{id: pokemon.id, user_email: email},
-            data: {...updatedData},
+            where:{id, user_email: email},
+            data: pokemon,
             omit:{
                 user_email : true
             }
@@ -109,10 +106,10 @@ export const updateShiny = async(email: string, pokemon: Partial<CaughtShiny>): 
         throw new Error();
     }
 }
-export const deleteShinies = async(email: string, ids: number[]):Promise<void> =>{
+export const deleteShiny = async(email: string, id: number):Promise<void> =>{
     try{
-        await prisma.caught_shinies.deleteMany({
-            where: {user_email: email, id : {in: ids}}
+        await prisma.caught_shinies.delete({
+            where: {user_email: email, id}
         })
     }catch(error){
         if(error instanceof Prisma.PrismaClientKnownRequestError){
