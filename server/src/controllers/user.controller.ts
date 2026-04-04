@@ -22,7 +22,7 @@ export const registerUser = async (req: Request, res: Response) => {
 
 export const resetPassword = async (req: Request, res: Response) =>{
     try{
-        const {email} = req.user
+        const {email} = req.user!
         await userService.resetPassword(email)
         res.status(202).json({message: "Email sent to the inbox if its in use!"})
     }catch(error){
@@ -39,7 +39,7 @@ export const resetPassword = async (req: Request, res: Response) =>{
 
 export const updateUser = async (req: Request, res: Response) => {
     try{
-        const {email} = req.user
+        const {email} = req.user!
         const data :Partial<User> = req.body
         await userService.updateUser(data, email)
         res.status(204).json({message: "User data updated!"})
@@ -63,7 +63,7 @@ export const updateUser = async (req: Request, res: Response) => {
 
 export const deleteUser = async (req: Request, res: Response) => {
     try{
-        const {email} = req.user
+        const {email} = req.user!
         await userService.deleteUser(email);
         res.status(204).json({message: "User deleted!"})
     }catch(error){
