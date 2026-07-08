@@ -14,7 +14,7 @@ export const login = async (email: string, password: string): Promise<{email: st
         const user : User | null= await prisma.users.findUnique({
             where: {email}
         })
-        if(!user){
+        if(!user || !user.password){
             throw new Error("INVALID")
         }
         const isMatch = await bcrypt.compare(password, user.password);

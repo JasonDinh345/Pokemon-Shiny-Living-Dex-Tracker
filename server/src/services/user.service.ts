@@ -6,13 +6,40 @@ import { sendResetPassEmail, sendVerificationEmail } from "../utils/email";
 import User from "../types/users.type";
 import { TOKEN_TYPES } from "../config/token_types";
 import { Prisma } from "@prisma/client";
-export const registerUser = async(username: string, email: string, password: string): Promise<boolean>  =>{
+export const findUserByEmail = async(email: string): Promise<boolean> =>{
   try{
     const existingUser: User | null = await prisma.users.findUnique({
         where: {email}
     })
-    if(existingUser){
-        return false;
+    
+    return existingUser ?  true : false;
+  }catch(err){
+    throw new Error();
+  }
+}
+export const addGoogleUser = async(username: string, email: string, googleID: string): Promise<boolean> =>{
+  if(await findUserByEmail(email)){
+      return false;
+    }
+    try{
+      await prisma.users.create({
+        data:{
+          email,
+          username,
+          googleID,
+          verified: true
+
+        }
+      })
+      return true;
+    }catch(err){
+      throw new Error();
+    }
+}
+export const registerUser = async(username: string, email: string, password: string): Promise<boolean>  =>{
+  try{
+    if(await findUserByEmail(email)){
+      return false;
     }
     const hashedPass = await bcrypt.hash(password!, 10);
       const token = crypto.randomBytes(32).toString('hex');
@@ -43,7 +70,7 @@ export const resetPassword = async(email: string) =>{
     if(!email){
       throw new Error("NOT_AUTH")
     }
-    const user: User | null= await prisma.users.findUnique({
+    const user: User | null = await prisma.users.findUnique({
       where:{email}
     })
     if(!user){

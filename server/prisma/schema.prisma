@@ -34,8 +34,9 @@ model refresh_tokens {
 model users {
   username       String           @db.VarChar(255)
   email          String           @id @db.VarChar(255)
-  password       String           @db.VarChar(255)
+  password       String?          @db.VarChar(255)
   verified       Boolean          @default(false)
+  googleID       String?          @unique(map: "googleID") @db.VarChar(255)
   caught_shinies caught_shinies[]
   refresh_tokens refresh_tokens[]
   tokens         tokens?

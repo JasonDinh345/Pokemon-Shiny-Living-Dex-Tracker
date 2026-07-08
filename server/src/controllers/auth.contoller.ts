@@ -1,14 +1,15 @@
 import { ENV } from '../config/env';
 import { NextFunction, Request, Response } from "express"
 import prisma from "../lib/prisma";
-
+import { OAuth2Client } from "google-auth-library";
 
 import jwt, { JwtPayload, VerifyErrors } from "jsonwebtoken"
 
 import { Prisma } from "@prisma/client";
 import RefreshToken from "../types/refresh_tokens.type";
 import * as authService from "../services/auth.service"
-
+import * as userService from "../services/user.service"
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 export const authenticateToken =  (req:Request, res: Response, next: NextFunction) =>{
         const accessToken = req.cookies.accessToken;
@@ -26,6 +27,56 @@ export const authenticateToken =  (req:Request, res: Response, next: NextFunctio
             req.user = decoded as {email: string}
             next()
         }))
+}
+export const googleLogin = async (req: Request, res: Response): Promise<void> => {
+    const {token} = req.body;
+    if (!token) {
+        res.status(400).json({ error: "Missing Google token" });
+        return;
+    }
+    try{
+        const ticket = await client.verifyIdToken({
+            idToken: token,
+            audience: process.env.GOOGLE_CLIENT_ID,
+        });
+
+        const payload = ticket.getPayload();
+
+        if (!payload || !payload.email) {
+            res.status(401).json({ error: "Invalid Google account" });
+            return;
+        }
+        const email = payload.email;
+        const name = payload.name;
+        const googleID = payload.sub;
+
+        const user = await userService.findUserByEmail(email)
+
+        if(!user){
+            await userService.addGoogleUser(name!, email, googleID)
+        }
+         await authService.deleteOldTokens();
+        const tokens : {accessToken : string, refreshToken: string} | undefined = await authService.createTokens(email);
+        if(!tokens){
+            throw new Error();
+        }
+        res.cookie('refreshToken', tokens.refreshToken, {
+            httpOnly: true, 
+                secure: ENV.PROJECT_STATUS === 'production', 
+                sameSite: 'strict', 
+                maxAge: 7 * 24 * 60 * 60 * 1000, 
+            });
+        res.cookie('accessToken', tokens.accessToken, {
+            httpOnly: true,
+            secure: ENV.PROJECT_STATUS === 'production', 
+            sameSite: 'strict',
+            maxAge: 15 * 60 * 1000
+        });
+        res.status(200).json({ email, username: name })
+    }catch(error){
+         
+        res.status(500).json({ error: 'Something went wrong' });
+    }
 }
 export const login = async (req: Request, res: Response): Promise<void> => {
     try{
