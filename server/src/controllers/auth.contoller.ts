@@ -1,14 +1,15 @@
 import { ENV } from '../config/env';
 import { NextFunction, Request, Response } from "express"
-import prisma from "../lib/prisma";
+
 import { OAuth2Client } from "google-auth-library";
 
 import jwt, { JwtPayload, VerifyErrors } from "jsonwebtoken"
 
 import { Prisma } from "@prisma/client";
-import RefreshToken from "../types/refresh_tokens.type";
+import RefreshToken from "../types/tokens.type";
 import * as authService from "../services/auth.service"
 import * as userService from "../services/user.service"
+import { TOKEN_TYPES } from '../config/token_types';
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 export const authenticateToken =  (req:Request, res: Response, next: NextFunction) =>{
@@ -53,7 +54,7 @@ export const googleLogin = async (req: Request, res: Response): Promise<void> =>
         const user = await userService.findUserByEmail(email)
 
         if(!user){
-            await userService.addGoogleUser(name!, email, googleID)
+            await authService.addGoogleUser(name!, email, googleID)
         }
          await authService.deleteOldTokens();
         const tokens : {accessToken : string, refreshToken: string} | undefined = await authService.createTokens(email);
@@ -118,10 +119,84 @@ export const login = async (req: Request, res: Response): Promise<void> => {
         }
         res.status(500).json({ error: 'Something went wrong' });
     }
-
-
-
 }   
+
+export const registerUser = async (req: Request, res: Response) => {
+    try{
+        const {username, email, password} = req.body;
+        const addedUser: boolean | undefined = await authService.registerUser(username, email, password);
+        if(!addedUser){
+            res.json(409).json({error: "Email already in use!"});
+            return;
+        }
+        res.status(201).json({message: "User Created"})
+    }catch(err){
+        res.status(500).json({error: "Something went wrong!"})
+    }
+
+}
+// Reset Pass Routes
+export const sendResetToken = async (req: Request, res: Response) =>{
+    try{
+        const {email} = req.user!
+        await authService.sendResetToken(email)
+        res.status(202).json({message: "Email sent to the inbox if its in use!"})
+    }catch(error){
+        if(error instanceof Error){
+            switch(error.message){
+                case "NOT_AUTH":
+                    res.status(401).json({error:"Not authorized!"})
+                    return;
+            }
+        }
+        res.status(500).json({error: "Something went wrong!"})
+    }
+}
+export const verifyResetToken = async (req: Request, res: Response) =>{
+    const token = req.query.token as string
+    if(!token){
+        res.status(400).json({error: "Link has expired"})
+        return;
+    }
+    try{
+        const resetToken = await authService.verifyResetToken(token)
+        if(resetToken){
+            res.status(200).json({message: "Link verified!"})
+        }else{
+            res.status(400).json({error: "Link has expired"})
+        }
+       
+    }catch(error){
+        res.status(500).json({ error: 'Something went wrong' });
+    }
+}
+export const resetPass = async (req: Request, res: Response) =>{
+    const {token, password} = req.body
+    try{
+        const passReset = await authService.resetPass(token, password);
+        if(passReset){
+            res.status(200).json({message:"Password reset!"})
+        }else{
+            res.status(400).json({error: "Link has expired"})
+        }
+    }catch(error){
+        throw new Error();
+    }
+}
+// Email Verification 
+export const verifyEmail = async (req: Request, res: Response) =>{
+    const token = req.query.token as string
+    if(!token){
+        res.status(400).json({error: "Link has expired"})
+        return;
+    }
+    try{
+        await authService.verifyEmail(token)
+        res.status(200).json({message: "Email verified!"})
+    }catch(error){
+        res.status(500).json({ error: 'Something went wrong' });
+    }
+}
 export const logout = async (req: Request, res: Response): Promise<void> =>{
     const refreshToken: string = req.cookies.refreshToken
     if (!refreshToken) {
@@ -129,11 +204,7 @@ export const logout = async (req: Request, res: Response): Promise<void> =>{
         return;
     }   
     try{
-        await prisma.refresh_tokens.delete({
-            where:{
-                token: refreshToken
-            }
-        })
+        await authService.deleteToken(refreshToken, TOKEN_TYPES.REFRESH)
         res.clearCookie('refreshToken');
         res.clearCookie('accessToken');
         res.status(200).json({ message: 'Logged out' });

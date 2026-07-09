@@ -21,16 +21,6 @@ model caught_shinies {
   @@index([user_email], map: "user_email_foreign2")
 }
 
-model refresh_tokens {
-  token      String   @unique(map: "token") @db.VarChar(255)
-  user_email String   @db.VarChar(255)
-  id         Int      @id @default(autoincrement())
-  expires_on DateTime @db.DateTime(0)
-  users      users    @relation(fields: [user_email], references: [email], onDelete: Cascade, map: "user_email_foreign_rt")
-
-  @@index([user_email], map: "user_email_foreign_rt")
-}
-
 model users {
   username       String           @db.VarChar(255)
   email          String           @id @db.VarChar(255)
@@ -38,19 +28,21 @@ model users {
   verified       Boolean          @default(false)
   googleID       String?          @unique(map: "googleID") @db.VarChar(255)
   caught_shinies caught_shinies[]
-  refresh_tokens refresh_tokens[]
-  tokens         tokens?
+  tokens         tokens[]
 }
 
 model tokens {
-  token      String      @db.VarChar(255)
+  token      String      @unique(map: "token") @db.VarChar(255)
   expires_on DateTime    @db.Date
-  user_email String      @id @db.VarChar(255)
+  user_email String      @db.VarChar(255)
   type       tokens_type
   users      users       @relation(fields: [user_email], references: [email], onDelete: Cascade, map: "user_email_foreign3")
+
+  @@id([user_email, type])
 }
 
 enum tokens_type {
   EMAIL_VERIFICATION
   RESET_PASS
+  REFRESH
 }

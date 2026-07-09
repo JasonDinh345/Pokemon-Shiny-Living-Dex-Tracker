@@ -1,7 +1,7 @@
-export default interface RefreshToken{
-    id : number,
+export default interface Token{
     token: string,
     user_email: string,
     expires_on: Date
+    type: string
 
 }

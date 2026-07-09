@@ -4,8 +4,12 @@ import User from "../types/users.type";
 import bcrypt from 'bcrypt'
 import crypto from "crypto"
 import jwt from "jsonwebtoken"
-import RefreshToken from "../types/refresh_tokens.type";
-
+import RefreshToken from "../types/tokens.type";
+import { findUserByEmail } from "./user.service";
+import { sendResetPassEmail, sendVerificationEmail } from "../utils/email";
+import { TOKEN_TYPES } from "../config/token_types";
+import Token from "../types/tokens.type";
+import { tokens_type } from "@prisma/client";
 export const login = async (email: string, password: string): Promise<{email: string, username: string}| undefined> =>{
     try{
         if(!email || !password){
@@ -28,8 +32,149 @@ export const login = async (email: string, password: string): Promise<{email: st
         }
     }
 }
+export const addGoogleUser = async(username: string, email: string, googleID: string): Promise<boolean> =>{
+  if(await findUserByEmail(email)){
+      return false;
+    }
+    try{
+      await prisma.users.create({
+        data:{
+          email,
+          username,
+          googleID,
+          verified: true
+
+        }
+      })
+      return true;
+    }catch(err){
+      throw new Error();
+    }
+}
+export const registerUser = async(username: string, email: string, password: string): Promise<boolean>  =>{
+  try{
+    if(await findUserByEmail(email)){
+      return false;
+    }
+    const hashedPass = await bcrypt.hash(password!, 10);
+      const token = crypto.randomBytes(32).toString('hex');
+      await prisma.$transaction(async (tx) => {
+        await tx.users.create({
+          data: {
+            email,
+            username,
+            password: hashedPass,
+            tokens: {
+              create: { 
+                  token, 
+                  expires_on: new Date(Date.now() + 24 * 60 * 60 * 1000),
+                  type: TOKEN_TYPES.EMAIL_VERIFICATION
+              }
+            }
+          }
+        });
+        await sendVerificationEmail(email, token);
+      });
+      return true;
+    }catch(error){
+      throw new Error();
+    }
+}
+export const sendResetToken = async(email: string) =>{
+  try{
+    if(!email){
+      throw new Error("NOT_AUTH")
+    }
+    const user: User | null = await prisma.users.findUnique({
+      where:{email}
+    })
+    if(!user){
+      return;
+    }
+    const token = crypto.randomBytes(32).toString('hex');
+    await prisma.$transaction(async (tx) => {
+          await tx.tokens.create({
+            data: {
+              user_email: email,
+              type :TOKEN_TYPES.RESET_PASS,
+              expires_on: new Date(Date.now() + 60 * 60 * 1000),
+              token
+            }
+          });
+          await sendResetPassEmail(email, token);
+        });
+  }catch(error){
+    if(error instanceof Error){
+      throw new Error(error.message)
+    }
+    throw new Error();
+  }
+}
+export const verifyEmail = async(token: string): Promise<boolean>=>{
+    try{
+        const emailToken = await prisma.tokens.findUnique({
+            where:{
+                token,
+                type: TOKEN_TYPES.EMAIL_VERIFICATION
+            }
+         })
+         if(!emailToken || new Date() > emailToken.expires_on){
+            await prisma.tokens.deleteMany({
+                where:{token}
+            })
+            return false;
+         }
+        await prisma.users.update({
+            where: {email: emailToken.user_email,},
+            data :{
+                verified: true
+            }
+        })
+        return true;
+    }catch(error){
+        throw new Error();
+    }
+}
+export const verifyResetToken = async(token: string): Promise<Token | null>=>{
+    try{
+        const resetToken = await prisma.tokens.findUnique({
+            where:{
+                token,
+                type: TOKEN_TYPES.RESET_PASS
+            }
+         })
+         if(!resetToken || new Date() > resetToken.expires_on){
+            await deleteToken(token, TOKEN_TYPES.RESET_PASS)
+            return null;
+         }
+        return resetToken;
+    }catch(error){
+        throw new Error();
+    }
+}
+export const resetPass = async(token: string, password: string): Promise<boolean> =>{
+    try{
+        const verifed = await verifyResetToken(token);
+        if(!verifed){
+            return false;
+        }
+        const {user_email} = verifed;
+        const hashedPass = await bcrypt.hash(password!, 10);
+        await prisma.users.update({
+            where: {email: user_email},
+            data: {
+                password: hashedPass
+            }
+        })
+        return true;
+        
+    }catch{
+        throw new Error();
+    }
+}
+
 export const deleteOldTokens = async () : Promise<void> =>{
-    await prisma.refresh_tokens.deleteMany({
+    await prisma.tokens.deleteMany({
             where:{
                 expires_on: {lt: new Date()}
             }
@@ -39,11 +184,12 @@ export const createTokens = async(email: string) : Promise<{accessToken : string
     try{
         const accessToken: string = generateAccessToken(email);
         const refreshToken: string = jwt.sign({email, jti: crypto.randomUUID()}, ENV.REFRESH_TOKEN_SECRET, { expiresIn: '7d' });
-        await prisma.refresh_tokens.create({
+        await prisma.tokens.create({
             data: {
                 token: refreshToken,
                 user_email : email,
-                expires_on: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+                expires_on: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+                type: TOKEN_TYPES.REFRESH
             } 
         })
         return {accessToken, refreshToken}
@@ -53,9 +199,10 @@ export const createTokens = async(email: string) : Promise<{accessToken : string
 } 
 export const getRefreshToken = async(token : string) : Promise<RefreshToken | undefined> =>{
     try{
-        const existingToken: RefreshToken | null = await prisma.refresh_tokens.findUnique({
+        const existingToken: RefreshToken | null = await prisma.tokens.findUnique({
         where:{
-            token
+            token,
+            type: TOKEN_TYPES.REFRESH
         }
         })
         return existingToken ? existingToken : undefined;
@@ -63,7 +210,16 @@ export const getRefreshToken = async(token : string) : Promise<RefreshToken | un
         throw new Error();
     }
 }
-
+export const deleteToken = async(token : string, type: tokens_type) : Promise<boolean> =>{
+    try{
+        const res = await prisma.tokens.deleteMany({
+            where:{token, type}
+        })
+        return res.count > 0;
+    }catch(err){
+        throw new Error();
+    }
+}
 export const generateAccessToken = (email: string): string => {
         return jwt.sign({email}, ENV.ACCESS_TOKEN_SECRET, {expiresIn: '15min'})
 }

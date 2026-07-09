@@ -1,11 +1,17 @@
 import { Router } from "express";
-import {getNewToken, login, logout, googleLogin } from "../controllers/auth.contoller";
+import {getNewToken, login, logout, googleLogin, registerUser, resetPass, sendResetToken, verifyResetToken, verifyEmail } from "../controllers/auth.contoller";
 
 const authRouter: Router = Router();
 
+
 authRouter.post("/login", login)
-authRouter.post("/login/google", googleLogin )
+authRouter.post("/login/google", googleLogin)
+authRouter.post("/register", registerUser)
 authRouter.post("/token", getNewToken)
+authRouter.post("/verify-email", verifyEmail)
+authRouter.post("/forgot-password", sendResetToken)
+authRouter.get("/reset-password", verifyResetToken)
+authRouter.post("/reset-password", resetPass)
 authRouter.delete("/logout", logout)
 
 export default authRouter;
