@@ -33,10 +33,12 @@ export const login = async (email: string, password: string): Promise<{email: st
     }
 }
 export const addGoogleUser = async(username: string, email: string, googleID: string): Promise<boolean> =>{
-  if(await findUserByEmail(email)){
-      return false;
-    }
+    
     try{
+        const user = await findUserByEmail(email)
+        if(user){
+            return false
+        }
       await prisma.users.create({
         data:{
           email,
@@ -52,9 +54,10 @@ export const addGoogleUser = async(username: string, email: string, googleID: st
     }
 }
 export const registerUser = async(username: string, email: string, password: string): Promise<boolean>  =>{
-  try{
-    if(await findUserByEmail(email)){
-      return false;
+    try{
+    const user = await findUserByEmail(email)
+    if(user){
+        return false;
     }
     const hashedPass = await bcrypt.hash(password!, 10);
       const token = crypto.randomBytes(32).toString('hex');

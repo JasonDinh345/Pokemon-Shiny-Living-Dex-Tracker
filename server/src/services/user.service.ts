@@ -2,13 +2,12 @@ import prisma from "../lib/prisma"
 import bcrypt from 'bcrypt';
 import User from "../types/users.type";
 import { Prisma } from "@prisma/client";
-export const findUserByEmail = async(email: string): Promise<boolean> =>{
+export const findUserByEmail = async(email: string): Promise<User | null> =>{
   try{
     const existingUser: User | null = await prisma.users.findUnique({
         where: {email}
     })
-    
-    return existingUser ?  true : false;
+    return existingUser
   }catch(err){
     throw new Error();
   }

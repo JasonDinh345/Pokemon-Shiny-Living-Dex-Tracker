@@ -1,17 +1,26 @@
-import { describe } from "node:test";
-import prisma from "../lib/prisma";
-import {server} from "../server"
 
-beforeEach(async () => {
+jest.mock("../utils/email", () => ({
+    sendVerificationEmail: jest.fn().mockResolvedValue(undefined),
+}));
+import request from "supertest";
+import { server } from "../server";
+
+
+
+
+
+describe("AUTH ROUTES", ()=>{
+    describe("POST /auth/register", () => {
+        it("should create a new user", async () => {
+            const response = await request(server)
+                .post("/auth/register")
+                .send({
+                    username: "Test",
+                    email: "test@gmail.com",
+                    password: "password123"
+                });
+            expect(response.status).toBe(201);
+        });
+    });
+})
     
-    await prisma.$executeRaw`BEGIN`;
-    
-});
-/**
- * Prevents changes to db
- */ 
-afterEach(async () => {
-    await prisma.$executeRaw`ROLLBACK`;
-   
-});
-describe

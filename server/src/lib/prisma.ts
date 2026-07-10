@@ -1,14 +1,7 @@
-import { ENV } from "../config/env";
-import { PrismaMariaDb } from "@prisma/adapter-mariadb";
+import "dotenv/config";
 import { PrismaClient } from '@prisma/client';
 
-const adapter = new PrismaMariaDb({
-  host: ENV.DATABASE_HOST,
-  user: ENV.DATABASE_USER,
-  password: ENV.DATABASE_PASSWORD,
-  database: ENV.DATABASE_NAME,
-});
 
-const prisma = new PrismaClient({ adapter });
+const prisma = new PrismaClient();
 
 export default prisma;

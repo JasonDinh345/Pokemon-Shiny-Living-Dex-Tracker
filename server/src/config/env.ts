@@ -1,3 +1,4 @@
+import "dotenv/config";
 const getEnv = (key: string): string => {
   const value = process.env[key];
   if (!value) {
@@ -18,4 +19,5 @@ export const ENV = {
     EMAIL_DOMAIN: getEnv('EMAIL_DOMAIN'),
     CLIENT_URL: getEnv('EMAIL_DOMAIN'),
     PROJECT_STATUS: process.env.PROJECT_STATUS || 'development',  
+    TEST_EMAIL: getEnv('TEST_EMAIL')
 };
