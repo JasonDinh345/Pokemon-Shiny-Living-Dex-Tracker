@@ -1,12 +1,13 @@
 import { Router } from "express";
 import {getNewToken, login, logout, googleLogin, registerUser, resetPass, sendResetToken, verifyResetToken, verifyEmail } from "../controllers/auth.contoller";
+import { validateLogin, validateRegister } from "../middleware/validate";
 
 const authRouter: Router = Router();
 
 
-authRouter.post("/login", login)
+authRouter.post("/login", validateLogin, login)
 authRouter.post("/login/google", googleLogin)
-authRouter.post("/register", registerUser)
+authRouter.post("/register",validateRegister, registerUser)
 authRouter.post("/token", getNewToken)
 authRouter.post("/verify-email", verifyEmail)
 authRouter.post("/forgot-password", sendResetToken)

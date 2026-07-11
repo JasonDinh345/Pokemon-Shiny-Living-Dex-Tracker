@@ -10,16 +10,48 @@ import { sendResetPassEmail, sendVerificationEmail } from "../utils/email";
 import { TOKEN_TYPES } from "../config/token_types";
 import Token from "../types/tokens.type";
 import { tokens_type } from "@prisma/client";
+export const registerUser = async(username: string, email: string, password: string): Promise<boolean>  =>{
+    try{
+    const user = await findUserByEmail(email)
+    if(user){
+        return false;
+    }
+    const hashedPass = await bcrypt.hash(password!, 10);
+      const token = crypto.randomBytes(32).toString('hex');
+      await prisma.$transaction(async (tx) => {
+        await tx.users.create({
+          data: {
+            email,
+            username,
+            password: hashedPass,
+            tokens: {
+              create: { 
+                  token, 
+                  expires_on: new Date(Date.now() + 24 * 60 * 60 * 1000),
+                  type: TOKEN_TYPES.EMAIL_VERIFICATION
+              }
+            }
+          }
+        });
+        await sendVerificationEmail(email, token);
+      });
+      return true;
+    }catch(error){
+      throw new Error();
+    }
+}
 export const login = async (email: string, password: string): Promise<{email: string, username: string}| undefined> =>{
     try{
-        if(!email || !password){
-            throw new Error("INVALID_FIELDS");
-        }
+        
         const user : User | null= await prisma.users.findUnique({
             where: {email}
         })
-        if(!user || !user.password){
+        if(!user){
             throw new Error("INVALID")
+        }else if(!user.password){
+            throw new Error("GOOGLE_ACC")
+        }else if(!user.verified){
+            throw new Error("NOT_VERIFIED")
         }
         const isMatch = await bcrypt.compare(password, user.password);
         if(!isMatch){
@@ -53,36 +85,7 @@ export const addGoogleUser = async(username: string, email: string, googleID: st
       throw new Error();
     }
 }
-export const registerUser = async(username: string, email: string, password: string): Promise<boolean>  =>{
-    try{
-    const user = await findUserByEmail(email)
-    if(user){
-        return false;
-    }
-    const hashedPass = await bcrypt.hash(password!, 10);
-      const token = crypto.randomBytes(32).toString('hex');
-      await prisma.$transaction(async (tx) => {
-        await tx.users.create({
-          data: {
-            email,
-            username,
-            password: hashedPass,
-            tokens: {
-              create: { 
-                  token, 
-                  expires_on: new Date(Date.now() + 24 * 60 * 60 * 1000),
-                  type: TOKEN_TYPES.EMAIL_VERIFICATION
-              }
-            }
-          }
-        });
-        await sendVerificationEmail(email, token);
-      });
-      return true;
-    }catch(error){
-      throw new Error();
-    }
-}
+
 export const sendResetToken = async(email: string) =>{
   try{
     if(!email){

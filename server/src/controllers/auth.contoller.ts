@@ -12,23 +12,6 @@ import * as userService from "../services/user.service"
 import { TOKEN_TYPES } from '../config/token_types';
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
-export const authenticateToken =  (req:Request, res: Response, next: NextFunction) =>{
-        const accessToken = req.cookies.accessToken;
-        
-        if(!accessToken){
-            res.status(403).json("Token cannot be null or undefined")
-            return;
-        }
-        jwt.verify(accessToken, ENV.ACCESS_TOKEN_SECRET, ((err :VerifyErrors | null, decoded: JwtPayload | string | undefined)=>{
-            if(err){
-                res.status(401).json({message:"Token can't be verified"})
-                return;
-            }
-            
-            req.user = decoded as {email: string}
-            next()
-        }))
-}
 export const googleLogin = async (req: Request, res: Response): Promise<void> => {
     const {token} = req.body;
     if (!token) {
@@ -84,9 +67,9 @@ export const login = async (req: Request, res: Response): Promise<void> => {
         const {email, password} = req.body as {email: string, password: string};
         const user : {email: string, username: string} | undefined = await authService.login(email, password)
         if(!user){
-            throw new Error("INVALID")
+            res.status(401).json({message:"Email or password is incorrect!"});
+            return;
         }
-        
         //deletes all old refresh tokens if they didnt logout
         await authService.deleteOldTokens();
         const tokens : {accessToken : string, refreshToken: string} | undefined = await authService.createTokens(user.email);
@@ -109,11 +92,14 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     }catch(error){
         if(error instanceof Error){
             switch(error.message){
-                case "INVALID_FIELDS":
-                    res.status(400).json({error: "Invalid fields!"})
+                case "GOOGLE_ACC":
+                    res.status(409).json({error: "Please sign in with Google!"})
+                    break;
+                case "NOT_VERIFIED":
+                    res.status(403).json({error: "Please verify your account!"})
                     break;
                 case "INVALID":
-                    res.status(401).json({error: "Email is invalid or the password is incorrect!"})
+                    res.status(401).json({error: "Email or password is incorrect!"})
                     break;
             }
         }
@@ -122,11 +108,13 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 }   
 
 export const registerUser = async (req: Request, res: Response) => {
+    const {username, email, password} = req.body;
+
     try{
-        const {username, email, password} = req.body;
+        
         const addedUser: boolean | undefined = await authService.registerUser(username, email, password);
         if(!addedUser){
-            res.json(409).json({error: "Email already in use!"});
+            res.status(409).json({error: "Email already in use!"});
             return;
         }
         res.status(201).json({message: "User Created"})
@@ -187,12 +175,16 @@ export const resetPass = async (req: Request, res: Response) =>{
 export const verifyEmail = async (req: Request, res: Response) =>{
     const token = req.query.token as string
     if(!token){
-        res.status(400).json({error: "Link has expired"})
-        return;
+        return res.status(400).json({error: "Link has expired"})
     }
     try{
-        await authService.verifyEmail(token)
-        res.status(200).json({message: "Email verified!"})
+        const verifed = await authService.verifyEmail(token)
+        if(verifed){
+            res.status(200).json({message: "Email verified!"})
+        }else{
+            res.status(400).json({error: "Link has expired"})
+        }
+        
     }catch(error){
         res.status(500).json({ error: 'Something went wrong' });
     }

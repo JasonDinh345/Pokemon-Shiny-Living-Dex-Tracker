@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { authenticateToken } from "../controllers/auth.contoller";
+import { authenticateToken } from "../middleware/authenticate";
 import { addNewShiny, deleteShiny, getAllShiniesOfUser, getShinyOfUser, updateShiny } from "../controllers/caught_shines.controller";
 
 const caughtShinyRouter: Router = Router()
