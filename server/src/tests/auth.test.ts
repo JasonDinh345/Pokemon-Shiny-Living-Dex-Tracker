@@ -151,6 +151,45 @@ describe("AUTH ROUTES", ()=>{
                 });
             expect(response.status).toBe(200);
         });
+        it("it shouldnt login the user with invalid email", async () => {
+            await createTestUserAndVerify()
+            const response = await request(server)
+                .post(`/auth/login`)
+                .send({
+                    email: "testgmail.com",
+                    password: "password123"
+                });
+            expect(response.status).toBe(400);
+        });
+        it("it shouldnt login the user with incorrect pass", async () => {
+            await createTestUserAndVerify()
+            const response = await request(server)
+                .post(`/auth/login`)
+                .send({
+                    email: "test@gmail.com",
+                    password: "password12"
+                });
+            expect(response.status).toBe(401);
+        });
+        it("it shouldnt login the user with no password", async () => {
+            await createTestUserAndVerify()
+            const response = await request(server)
+                .post(`/auth/login`)
+                .send({
+                    email: "test@gmail.com"
+                });
+            expect(response.status).toBe(400);
+        });
+        it("it shouldnt login the user with unverified account", async () => {
+            await createTestUser();
+            const response = await request(server)
+                .post(`/auth/login`)
+                .send({
+                    email: "test@gmail.com",
+                    password: "password123"
+                });
+            expect(response.status).toBe(403);
+        });
     })
 })
     

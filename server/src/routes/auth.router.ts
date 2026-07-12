@@ -1,18 +1,35 @@
-import { Router } from "express";
-import {getNewToken, login, logout, googleLogin, registerUser, resetPass, sendResetToken, verifyResetToken, verifyEmail } from "../controllers/auth.contoller";
-import { validateLogin, validateRegister } from "../middleware/validate";
-
+import {Router} from 'express';
+import {
+    getNewToken,
+    login,
+    logout,
+    googleLogin,
+    registerUser,
+    resetPass,
+    sendResetToken,
+    verifyResetToken,
+    verifyEmail,
+} from '../controllers/auth.contoller';
+import {validateLogin, validateRegister} from '../middleware/validate';
+//router for the auth route
 const authRouter: Router = Router();
-
-
-authRouter.post("/login", validateLogin, login)
-authRouter.post("/login/google", googleLogin)
-authRouter.post("/register",validateRegister, registerUser)
-authRouter.post("/token", getNewToken)
-authRouter.post("/verify-email", verifyEmail)
-authRouter.post("/forgot-password", sendResetToken)
-authRouter.get("/reset-password", verifyResetToken)
-authRouter.post("/reset-password", resetPass)
-authRouter.delete("/logout", logout)
+//POST route to login a user
+authRouter.post('/login', validateLogin, login);
+//POST route to login a user with Google
+authRouter.post('/login/google', googleLogin);
+//POST route to register a user
+authRouter.post('/register', validateRegister, registerUser);
+//POST route to verify a user
+authRouter.post('/verify-email', verifyEmail);
+//POST route to request to reset a users password
+authRouter.post('/forgot-password', sendResetToken);
+//GET route to verify request to reset password
+authRouter.get('/reset-password', verifyResetToken);
+//POST route to reset password
+authRouter.post('/reset-password', resetPass);
+//POST route to get a new access token
+authRouter.post('/token', getNewToken);
+//DELETE route to logout a user
+authRouter.delete('/logout', logout);
 
 export default authRouter;
