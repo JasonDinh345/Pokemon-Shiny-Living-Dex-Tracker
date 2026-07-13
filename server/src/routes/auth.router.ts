@@ -25,8 +25,8 @@ authRouter.post('/verify-email', verifyEmail);
 authRouter.post('/forgot-password', sendResetToken);
 //GET route to verify request to reset password
 authRouter.get('/reset-password', verifyResetToken);
-//POST route to reset password
-authRouter.post('/reset-password', resetPass);
+//PATCH route to reset password
+authRouter.patch('/reset-password', resetPass);
 //POST route to get a new access token
 authRouter.post('/token', getNewToken);
 //DELETE route to logout a user

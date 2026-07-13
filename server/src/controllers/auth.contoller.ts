@@ -11,7 +11,7 @@ import * as authService from '../services/auth.service';
 import * as userService from '../services/user.service';
 import {TOKEN_TYPES} from '../config/token_types';
 //client for google auth
-const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+import client from '../lib/google';
 /**
  * Log in the user with Google Auth and inserts them in the db if needed
  * @param req request from user
@@ -23,14 +23,20 @@ export const googleLogin = async (req: Request, res: Response) => {
         res.status(400).json({error: 'Missing Google token'});
         return;
     }
+    let payload;
+
     try {
         const ticket = await client.verifyIdToken({
             idToken: token,
             audience: process.env.GOOGLE_CLIENT_ID,
         });
 
-        const payload = ticket.getPayload();
-
+        payload = ticket.getPayload();
+    } catch (error) {
+        res.status(401).json({error: 'Invalid Google account'});
+        return;
+    }
+    try {
         if (!payload || !payload.email) {
             res.status(401).json({error: 'Invalid Google account'});
             return;
@@ -43,6 +49,9 @@ export const googleLogin = async (req: Request, res: Response) => {
 
         if (!user) {
             await authService.addGoogleUser(name!, email, googleID);
+        } else if (user.password) {
+            res.status(409).json({error: 'Email in use! Please use the standard login!'});
+            return;
         }
         await authService.deleteOldTokens();
         const tokens: {accessToken: string; refreshToken: string} | undefined =

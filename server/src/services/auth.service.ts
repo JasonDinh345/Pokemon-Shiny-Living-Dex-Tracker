@@ -10,6 +10,13 @@ import {sendResetPassEmail, sendVerificationEmail} from '../utils/email';
 import {TOKEN_TYPES} from '../config/token_types';
 import Token from '../types/tokens.type';
 import {tokens_type} from '@prisma/client';
+/**
+ * Inserts a user into the db
+ * @param username username of the user
+ * @param email email of the user
+ * @param password password of the user
+ * @returns true if successful, false if else
+ */
 export const registerUser = async (
     username: string,
     email: string,
@@ -44,6 +51,12 @@ export const registerUser = async (
         throw new Error();
     }
 };
+/**
+ * Verifies a login by comparing the password and verification state
+ * @param email email of the user
+ * @param password password of the user
+ * @returns the email and username of the user
+ */
 export const login = async (
     email: string,
     password: string
@@ -70,6 +83,13 @@ export const login = async (
         }
     }
 };
+/**
+ * Inserts a user into db when first logining in via Google
+ * @param username username of the user
+ * @param email email of the google account
+ * @param googleID googleID obtain from google auth
+ * @returns true if successful, false if else
+ */
 export const addGoogleUser = async (
     username: string,
     email: string,
@@ -94,6 +114,40 @@ export const addGoogleUser = async (
     }
 };
 
+/**
+ * Verifies if the token from the request is valid
+ * @param token email verification token
+ * @returns true if valid, false if else
+ */
+export const verifyEmail = async (token: string): Promise<boolean> => {
+    try {
+        const emailToken = await prisma.tokens.findUnique({
+            where: {
+                token,
+                type: TOKEN_TYPES.EMAIL_VERIFICATION,
+            },
+        });
+        if (!emailToken || new Date() > emailToken.expires_on) {
+            await prisma.tokens.deleteMany({
+                where: {token},
+            });
+            return false;
+        }
+        await prisma.users.update({
+            where: {email: emailToken.user_email},
+            data: {
+                verified: true,
+            },
+        });
+        return true;
+    } catch (error) {
+        throw new Error();
+    }
+};
+/**
+ * Sends a reset password email if the yser exists
+ * @param email email of user
+ */
 export const sendResetToken = async (email: string) => {
     try {
         if (!email) {
@@ -124,31 +178,11 @@ export const sendResetToken = async (email: string) => {
         throw new Error();
     }
 };
-export const verifyEmail = async (token: string): Promise<boolean> => {
-    try {
-        const emailToken = await prisma.tokens.findUnique({
-            where: {
-                token,
-                type: TOKEN_TYPES.EMAIL_VERIFICATION,
-            },
-        });
-        if (!emailToken || new Date() > emailToken.expires_on) {
-            await prisma.tokens.deleteMany({
-                where: {token},
-            });
-            return false;
-        }
-        await prisma.users.update({
-            where: {email: emailToken.user_email},
-            data: {
-                verified: true,
-            },
-        });
-        return true;
-    } catch (error) {
-        throw new Error();
-    }
-};
+/**
+ * Verifies if the requested reset password token is valid
+ * @param token reset password token
+ * @returns the token if valid, null if else
+ */
 export const verifyResetToken = async (token: string): Promise<Token | null> => {
     try {
         const resetToken = await prisma.tokens.findUnique({
@@ -166,6 +200,12 @@ export const verifyResetToken = async (token: string): Promise<Token | null> => 
         throw new Error();
     }
 };
+/**
+ * Resets the password of the user
+ * @param token reset password token
+ * @param password new password
+ * @returns true if successfull, false if else
+ */
 export const resetPass = async (token: string, password: string): Promise<boolean> => {
     try {
         const verifed = await verifyResetToken(token);
@@ -185,7 +225,9 @@ export const resetPass = async (token: string, password: string): Promise<boolea
         throw new Error();
     }
 };
-
+/**
+ * Deletes expired tokens
+ */
 export const deleteOldTokens = async (): Promise<void> => {
     await prisma.tokens.deleteMany({
         where: {
@@ -193,6 +235,11 @@ export const deleteOldTokens = async (): Promise<void> => {
         },
     });
 };
+/**
+ * Generates access and refresh tokens for a user
+ * @param email email of the user
+ * @returns the tokens
+ */
 export const createTokens = async (
     email: string
 ): Promise<{accessToken: string; refreshToken: string} | undefined> => {
@@ -216,6 +263,11 @@ export const createTokens = async (
         throw new Error();
     }
 };
+/**
+ * gets the token record from a token
+ * @param token refresh token
+ * @returns the token record
+ */
 export const getRefreshToken = async (token: string): Promise<RefreshToken | undefined> => {
     try {
         const existingToken: RefreshToken | null = await prisma.tokens.findUnique({
@@ -229,6 +281,12 @@ export const getRefreshToken = async (token: string): Promise<RefreshToken | und
         throw new Error();
     }
 };
+/**
+ * Deletes a  token from the db
+ * @param token token value
+ * @param type token type
+ * @returns true if successful, false else
+ */
 export const deleteToken = async (token: string, type: tokens_type): Promise<boolean> => {
     try {
         const res = await prisma.tokens.deleteMany({
@@ -239,6 +297,11 @@ export const deleteToken = async (token: string, type: tokens_type): Promise<boo
         throw new Error();
     }
 };
+/**
+ * generates access token for a user
+ * @param email email of a user
+ * @returns the access token
+ */
 export const generateAccessToken = (email: string): string => {
     return jwt.sign({email}, ENV.ACCESS_TOKEN_SECRET, {expiresIn: '15min'});
 };
