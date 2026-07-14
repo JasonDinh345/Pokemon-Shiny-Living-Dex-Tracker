@@ -1,11 +1,12 @@
 export default {
-  preset: "ts-jest",
-  testEnvironment: "node",
-  roots: ["./src/tests"],
-  transform: {
-    "^.+\\.ts?$": "ts-jest",
-  },
-  testRegex: "(/__tests__/.*|(\\.|/)(test|spec))\\.ts?$",
-  moduleFileExtensions: ["ts", "js", "json", "node"],
-  setupFiles: ["<rootDir>/src/tests/setup.ts"],
+    preset: 'ts-jest',
+    testEnvironment: 'node',
+    roots: ['./src/tests/'],
+    transform: {
+        '^.+\\.ts?$': 'ts-jest',
+    },
+    testRegex: '(/__tests__/.*|(\\.|/)(test|spec))\\.ts?$',
+    moduleFileExtensions: ['ts', 'js', 'json', 'node'],
+    setupFiles: ['<rootDir>/src/tests/setup.ts'],
+    maxWorkers: 1,
 };

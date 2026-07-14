@@ -39,10 +39,10 @@ export const registerUser = async (
                         create: {
                             token,
                             expires_on: new Date(Date.now() + 24 * 60 * 60 * 1000),
-                            type: TOKEN_TYPES.EMAIL_VERIFICATION,
-                        },
-                    },
-                },
+                            type: TOKEN_TYPES.EMAIL_VERIFICATION
+                        }
+                    }
+                }
             });
             await sendVerificationEmail(email, token);
         });
@@ -63,8 +63,9 @@ export const login = async (
 ): Promise<{email: string; username: string} | undefined> => {
     try {
         const user: User | null = await prisma.users.findUnique({
-            where: {email},
+            where: {email}
         });
+
         if (!user) {
             throw new Error('INVALID');
         } else if (!user.password) {
@@ -105,8 +106,8 @@ export const addGoogleUser = async (
                 email,
                 username,
                 googleID,
-                verified: true,
-            },
+                verified: true
+            }
         });
         return true;
     } catch (err) {
@@ -124,21 +125,22 @@ export const verifyEmail = async (token: string): Promise<boolean> => {
         const emailToken = await prisma.tokens.findUnique({
             where: {
                 token,
-                type: TOKEN_TYPES.EMAIL_VERIFICATION,
-            },
+                type: TOKEN_TYPES.EMAIL_VERIFICATION
+            }
         });
         if (!emailToken || new Date() > emailToken.expires_on) {
             await prisma.tokens.deleteMany({
-                where: {token},
+                where: {token}
             });
             return false;
         }
         await prisma.users.update({
             where: {email: emailToken.user_email},
             data: {
-                verified: true,
-            },
+                verified: true
+            }
         });
+        await deleteToken(token, TOKEN_TYPES.EMAIL_VERIFICATION);
         return true;
     } catch (error) {
         throw new Error();
@@ -154,7 +156,7 @@ export const sendResetToken = async (email: string) => {
             throw new Error('NOT_AUTH');
         }
         const user: User | null = await prisma.users.findUnique({
-            where: {email},
+            where: {email}
         });
         if (!user) {
             return;
@@ -166,8 +168,8 @@ export const sendResetToken = async (email: string) => {
                     user_email: email,
                     type: TOKEN_TYPES.RESET_PASS,
                     expires_on: new Date(Date.now() + 60 * 60 * 1000),
-                    token,
-                },
+                    token
+                }
             });
             await sendResetPassEmail(email, token);
         });
@@ -185,16 +187,17 @@ export const sendResetToken = async (email: string) => {
  */
 export const verifyResetToken = async (token: string): Promise<Token | null> => {
     try {
+        console.log(await prisma.tokens.findFirst());
+        await deleteOldTokens();
+        console.log(token);
+        console.log(await prisma.tokens.findFirst());
         const resetToken = await prisma.tokens.findUnique({
             where: {
                 token,
-                type: TOKEN_TYPES.RESET_PASS,
-            },
+                type: TOKEN_TYPES.RESET_PASS
+            }
         });
-        if (!resetToken || new Date() > resetToken.expires_on) {
-            await deleteToken(token, TOKEN_TYPES.RESET_PASS);
-            return null;
-        }
+        console.log(resetToken);
         return resetToken;
     } catch (error) {
         throw new Error();
@@ -217,8 +220,8 @@ export const resetPass = async (token: string, password: string): Promise<boolea
         await prisma.users.update({
             where: {email: user_email},
             data: {
-                password: hashedPass,
-            },
+                password: hashedPass
+            }
         });
         return true;
     } catch {
@@ -231,8 +234,8 @@ export const resetPass = async (token: string, password: string): Promise<boolea
 export const deleteOldTokens = async (): Promise<void> => {
     await prisma.tokens.deleteMany({
         where: {
-            expires_on: {lt: new Date()},
-        },
+            expires_on: {lt: new Date()}
+        }
     });
 };
 /**
@@ -255,8 +258,8 @@ export const createTokens = async (
                 token: refreshToken,
                 user_email: email,
                 expires_on: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-                type: TOKEN_TYPES.REFRESH,
-            },
+                type: TOKEN_TYPES.REFRESH
+            }
         });
         return {accessToken, refreshToken};
     } catch (error) {
@@ -273,8 +276,8 @@ export const getRefreshToken = async (token: string): Promise<RefreshToken | und
         const existingToken: RefreshToken | null = await prisma.tokens.findUnique({
             where: {
                 token,
-                type: TOKEN_TYPES.REFRESH,
-            },
+                type: TOKEN_TYPES.REFRESH
+            }
         });
         return existingToken ? existingToken : undefined;
     } catch (error) {
@@ -290,7 +293,7 @@ export const getRefreshToken = async (token: string): Promise<RefreshToken | und
 export const deleteToken = async (token: string, type: tokens_type): Promise<boolean> => {
     try {
         const res = await prisma.tokens.deleteMany({
-            where: {token, type},
+            where: {token, type}
         });
         return res.count > 0;
     } catch (err) {

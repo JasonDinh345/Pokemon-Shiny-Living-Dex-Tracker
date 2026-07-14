@@ -28,7 +28,7 @@ export const googleLogin = async (req: Request, res: Response) => {
     try {
         const ticket = await client.verifyIdToken({
             idToken: token,
-            audience: process.env.GOOGLE_CLIENT_ID,
+            audience: process.env.GOOGLE_CLIENT_ID
         });
 
         payload = ticket.getPayload();
@@ -63,13 +63,13 @@ export const googleLogin = async (req: Request, res: Response) => {
             httpOnly: true,
             secure: ENV.PROJECT_STATUS === 'production',
             sameSite: 'strict',
-            maxAge: 7 * 24 * 60 * 60 * 1000,
+            maxAge: 7 * 24 * 60 * 60 * 1000
         });
         res.cookie('accessToken', tokens.accessToken, {
             httpOnly: true,
             secure: ENV.PROJECT_STATUS === 'production',
             sameSite: 'strict',
-            maxAge: 15 * 60 * 1000,
+            maxAge: 15 * 60 * 1000
         });
         res.status(200).json({email, username: name});
     } catch (error) {
@@ -93,7 +93,7 @@ export const login = async (req: Request, res: Response) => {
         );
         if (!user) {
             res.status(401).json({
-                message: 'Email or password is incorrect!',
+                message: 'Email or password is incorrect!'
             });
             return;
         }
@@ -108,13 +108,13 @@ export const login = async (req: Request, res: Response) => {
             httpOnly: true,
             secure: ENV.PROJECT_STATUS === 'production',
             sameSite: 'strict',
-            maxAge: 7 * 24 * 60 * 60 * 1000,
+            maxAge: 7 * 24 * 60 * 60 * 1000
         });
         res.cookie('accessToken', tokens.accessToken, {
             httpOnly: true,
             secure: ENV.PROJECT_STATUS === 'production',
             sameSite: 'strict',
-            maxAge: 15 * 60 * 1000,
+            maxAge: 15 * 60 * 1000
         });
         res.status(200).json({email: user.email, username: user.username});
     } catch (error) {
@@ -122,17 +122,17 @@ export const login = async (req: Request, res: Response) => {
             switch (error.message) {
                 case 'GOOGLE_ACC':
                     res.status(409).json({
-                        error: 'Please sign in with Google!',
+                        error: 'Please sign in with Google!'
                     });
                     break;
                 case 'NOT_VERIFIED':
                     res.status(403).json({
-                        error: 'Please verify your account!',
+                        error: 'Please verify your account!'
                     });
                     break;
                 case 'INVALID':
                     res.status(401).json({
-                        error: 'Email or password is incorrect!',
+                        error: 'Email or password is incorrect!'
                     });
                     break;
             }
@@ -172,19 +172,16 @@ export const registerUser = async (req: Request, res: Response) => {
  */
 export const sendResetToken = async (req: Request, res: Response) => {
     try {
-        const {email} = req.user!;
+        const {email} = req.body;
+        if (!email) {
+            res.status(400).json({error: 'Enter a email!'});
+            return;
+        }
         await authService.sendResetToken(email);
         res.status(202).json({
-            message: 'Email sent to the inbox if its in use!',
+            message: 'Email sent to the inbox if its in use!'
         });
     } catch (error) {
-        if (error instanceof Error) {
-            switch (error.message) {
-                case 'NOT_AUTH':
-                    res.status(401).json({error: 'Not authorized!'});
-                    return;
-            }
-        }
         res.status(500).json({error: 'Something went wrong!'});
     }
 };
@@ -196,11 +193,12 @@ export const sendResetToken = async (req: Request, res: Response) => {
 export const verifyResetToken = async (req: Request, res: Response) => {
     const token = req.query.token as string;
     if (!token) {
-        res.status(400).json({error: 'Link has expired'});
+        res.status(400).json({error: 'No token sent!'});
         return;
     }
     try {
         const resetToken = await authService.verifyResetToken(token);
+        console.log(resetToken);
         if (resetToken) {
             res.status(200).json({message: 'Link verified!'});
         } else {
@@ -308,7 +306,7 @@ export const getNewToken = async (req: Request, res: Response): Promise<void> =>
                 httpOnly: true,
                 secure: ENV.PROJECT_STATUS === 'production',
                 sameSite: 'strict',
-                maxAge: 15 * 60 * 1000,
+                maxAge: 15 * 60 * 1000
             });
         });
     } catch (error) {

@@ -34,7 +34,7 @@ model users {
 
 model tokens {
   token      String      @unique(map: "token") @db.VarChar(255)
-  expires_on DateTime    @db.Date
+  expires_on DateTime    @db.DateTime(0)
   user_email String      @db.VarChar(255)
   type       tokens_type
   users      users       @relation(fields: [user_email], references: [email], onDelete: Cascade, map: "user_email_foreign3")
