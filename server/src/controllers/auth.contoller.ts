@@ -1,7 +1,6 @@
+import 'dotenv/config';
 import {ENV} from '../config/env';
 import {Request, Response} from 'express';
-
-import {OAuth2Client} from 'google-auth-library';
 
 import jwt from 'jsonwebtoken';
 
@@ -12,6 +11,7 @@ import * as userService from '../services/user.service';
 import {TOKEN_TYPES} from '../config/token_types';
 //client for google auth
 import client from '../lib/google';
+
 /**
  * Log in the user with Google Auth and inserts them in the db if needed
  * @param req request from user
@@ -61,13 +61,13 @@ export const googleLogin = async (req: Request, res: Response) => {
         }
         res.cookie('refreshToken', tokens.refreshToken, {
             httpOnly: true,
-            secure: ENV.PROJECT_STATUS === 'production',
+            secure: process.env.PROJECT_STATUS === 'production',
             sameSite: 'strict',
             maxAge: 7 * 24 * 60 * 60 * 1000
         });
         res.cookie('accessToken', tokens.accessToken, {
             httpOnly: true,
-            secure: ENV.PROJECT_STATUS === 'production',
+            secure: process.env.PROJECT_STATUS === 'production',
             sameSite: 'strict',
             maxAge: 15 * 60 * 1000
         });
@@ -104,15 +104,17 @@ export const login = async (req: Request, res: Response) => {
         if (!tokens) {
             throw new Error();
         }
+        console.log(process.env.PROJECT_STATUS);
+        console.log(process.env.PROJECT_STATUS === 'production');
         res.cookie('refreshToken', tokens.refreshToken, {
             httpOnly: true,
-            secure: ENV.PROJECT_STATUS === 'production',
+            secure: process.env.PROJECT_STATUS === 'production',
             sameSite: 'strict',
             maxAge: 7 * 24 * 60 * 60 * 1000
         });
         res.cookie('accessToken', tokens.accessToken, {
             httpOnly: true,
-            secure: ENV.PROJECT_STATUS === 'production',
+            secure: process.env.PROJECT_STATUS === 'production',
             sameSite: 'strict',
             maxAge: 15 * 60 * 1000
         });
@@ -137,6 +139,7 @@ export const login = async (req: Request, res: Response) => {
                     break;
             }
         }
+
         res.status(500).json({error: 'Something went wrong'});
     }
 };
@@ -198,11 +201,11 @@ export const verifyResetToken = async (req: Request, res: Response) => {
     }
     try {
         const resetToken = await authService.verifyResetToken(token);
-        console.log(resetToken);
+
         if (resetToken) {
             res.status(200).json({message: 'Link verified!'});
         } else {
-            res.status(400).json({error: 'Link has expired'});
+            res.status(403).json({error: 'Link has expired'});
         }
     } catch (error) {
         res.status(500).json({error: 'Something went wrong'});
@@ -215,15 +218,18 @@ export const verifyResetToken = async (req: Request, res: Response) => {
  */
 export const resetPass = async (req: Request, res: Response) => {
     const {token, password} = req.body;
+    if (!token || !password) {
+        res.status(400).json({error: 'Missing fields!'});
+    }
     try {
         const passReset = await authService.resetPass(token, password);
         if (passReset) {
             res.status(200).json({message: 'Password reset!'});
         } else {
-            res.status(400).json({error: 'Link has expired'});
+            res.status(403).json({error: 'Link has expired'});
         }
     } catch (error) {
-        throw new Error();
+        res.status(500).json({error: 'Something went wrong'});
     }
 };
 // Email Verification
@@ -283,6 +289,7 @@ export const logout = async (req: Request, res: Response): Promise<void> => {
  */
 export const getNewToken = async (req: Request, res: Response): Promise<void> => {
     const refreshToken: string = req.cookies.refreshToken;
+    console.log(refreshToken);
     if (!refreshToken) {
         res.status(400).json({error: 'No refresh token provided'});
         return;
@@ -309,7 +316,9 @@ export const getNewToken = async (req: Request, res: Response): Promise<void> =>
                 maxAge: 15 * 60 * 1000
             });
         });
+        res.status(200).json({message: 'Successfully generated new token!'});
     } catch (error) {
+        console.log(error);
         res.status(500).json({error: 'Something went wrong'});
     }
 };

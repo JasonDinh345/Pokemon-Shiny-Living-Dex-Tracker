@@ -1,18 +1,19 @@
 jest.mock('../../utils/email', () => ({
-    sendVerificationEmail: jest.fn().mockResolvedValue(undefined),
+    sendVerificationEmail: jest.fn().mockResolvedValue(undefined)
 }));
 
 jest.mock('../../lib/google', () => ({
     __esModule: true,
     default: {
-        verifyIdToken: jest.fn(),
-    },
+        verifyIdToken: jest.fn()
+    }
 }));
 import request from 'supertest';
 import {server} from '../../server';
 import prisma from '../../lib/prisma';
 
 import client from '../../lib/google';
+import {createTestUser} from '../setup';
 
 beforeEach(async () => {
     await prisma.users.deleteMany();
@@ -21,21 +22,15 @@ beforeEach(async () => {
         getPayload: () => ({
             email: 'googleTestUser@gmail.com',
             name: 'Google User',
-            sub: 'google123',
-        }),
+            sub: 'google123'
+        })
     });
 });
-async function createTestUser() {
-    await request(server).post('/auth/register').send({
-        username: 'Test',
-        email: 'test@gmail.com',
-        password: 'password123',
-    });
-}
+
 describe('POST /auth/login/google ', () => {
     it('it should login the user with google', async () => {
         const response = await request(server).post(`/auth/login/google`).send({
-            token: 'googleToken',
+            token: 'googleToken'
         });
         const count = await prisma.users.count();
         expect(count).toBe(1);
@@ -52,12 +47,12 @@ describe('POST /auth/login/google ', () => {
             getPayload: () => ({
                 email: 'test@gmail.com',
                 name: 'Google User',
-                sub: 'google123',
-            }),
+                sub: 'google123'
+            })
         });
-        await createTestUser();
+        await createTestUser(server);
         const response = await request(server).post(`/auth/login/google`).send({
-            token: 'googleToken',
+            token: 'googleToken'
         });
         const count = await prisma.users.count();
         expect(count).toBe(1);
@@ -65,19 +60,19 @@ describe('POST /auth/login/google ', () => {
     });
     it('it shouldnt login the user with google with failed verification', async () => {
         (client.verifyIdToken as jest.Mock).mockResolvedValue(undefined);
-        await createTestUser();
+        await createTestUser(server);
         const response = await request(server).post(`/auth/login/google`).send({
-            token: 'googleToken',
+            token: 'googleToken'
         });
         expect(response.status).toBe(401);
     });
     it('it shouldnt login the user with google with no payload', async () => {
         (client.verifyIdToken as jest.Mock).mockResolvedValue({
-            getPayload: () => undefined,
+            getPayload: () => undefined
         });
-        await createTestUser();
+        await createTestUser(server);
         const response = await request(server).post(`/auth/login/google`).send({
-            token: 'googleToken',
+            token: 'googleToken'
         });
         expect(response.status).toBe(401);
     });

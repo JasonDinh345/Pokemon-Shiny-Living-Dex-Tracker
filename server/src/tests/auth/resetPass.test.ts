@@ -5,7 +5,6 @@ jest.mock('../../utils/email', () => ({
 import request from 'supertest';
 import {server} from '../../server';
 import prisma from '../../lib/prisma';
-
 import {TOKEN_TYPES} from '../../config/token_types';
 import {sendResetPassEmail} from '../setup';
 
@@ -13,7 +12,7 @@ beforeEach(async () => {
     await prisma.users.deleteMany();
     await prisma.tokens.deleteMany();
 });
-describe('GET /auth/reset-password ', () => {
+describe('PATCH /auth/reset-password ', () => {
     it('should send status 200', async () => {
         await sendResetPassEmail(server);
         const tokenData = await prisma.tokens.findUnique({
@@ -26,17 +25,29 @@ describe('GET /auth/reset-password ', () => {
         });
 
         const resetToken = tokenData?.token;
-        const response = await request(server).get(`/auth/reset-password?token=${resetToken}`);
+        const response = await request(server).patch('/auth/reset-password').send({
+            token: resetToken,
+            password: 'newPassword345'
+        });
         expect(response.status).toBe(200);
     });
-    it('should send status 400 with no token', async () => {
-        const response = await request(server).get(`/auth/reset-password`);
+    it('it should fail with no token', async () => {
+        const response = await request(server).patch('/auth/reset-password').send({
+            password: 'newPassword345'
+        });
         expect(response.status).toBe(400);
     });
-    it('should send status 403 with invalid token', async () => {
-        await sendResetPassEmail(server);
-
-        const response = await request(server).get(`/auth/reset-password?token=${'fakeToken'}`);
+    it('it should fail with no password', async () => {
+        const response = await request(server).patch('/auth/reset-password').send({
+            token: 'token'
+        });
+        expect(response.status).toBe(400);
+    });
+    it('should fail with invail/expired token', async () => {
+        const response = await request(server).patch('/auth/reset-password').send({
+            token: 'fakeToken',
+            password: 'newPassword345'
+        });
         expect(response.status).toBe(403);
     });
 });

@@ -187,17 +187,14 @@ export const sendResetToken = async (email: string) => {
  */
 export const verifyResetToken = async (token: string): Promise<Token | null> => {
     try {
-        console.log(await prisma.tokens.findFirst());
         await deleteOldTokens();
-        console.log(token);
-        console.log(await prisma.tokens.findFirst());
         const resetToken = await prisma.tokens.findUnique({
             where: {
                 token,
                 type: TOKEN_TYPES.RESET_PASS
             }
         });
-        console.log(resetToken);
+
         return resetToken;
     } catch (error) {
         throw new Error();
