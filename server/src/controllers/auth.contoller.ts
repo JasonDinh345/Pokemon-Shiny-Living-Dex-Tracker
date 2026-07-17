@@ -104,8 +104,7 @@ export const login = async (req: Request, res: Response) => {
         if (!tokens) {
             throw new Error();
         }
-        console.log(process.env.PROJECT_STATUS);
-        console.log(process.env.PROJECT_STATUS === 'production');
+
         res.cookie('refreshToken', tokens.refreshToken, {
             httpOnly: true,
             secure: process.env.PROJECT_STATUS === 'production',
@@ -271,14 +270,6 @@ export const logout = async (req: Request, res: Response): Promise<void> => {
         res.clearCookie('accessToken');
         res.status(200).json({message: 'Logged out'});
     } catch (error) {
-        if (error instanceof Prisma.PrismaClientKnownRequestError) {
-            if (error.code === 'P2025') {
-                res.clearCookie('refreshToken');
-                res.clearCookie('accessToken');
-                res.status(200).json({message: 'Logged out'});
-                return;
-            }
-        }
         res.status(500).json({error: 'Something went wrong'});
     }
 };
@@ -289,7 +280,7 @@ export const logout = async (req: Request, res: Response): Promise<void> => {
  */
 export const getNewToken = async (req: Request, res: Response): Promise<void> => {
     const refreshToken: string = req.cookies.refreshToken;
-    console.log(refreshToken);
+
     if (!refreshToken) {
         res.status(400).json({error: 'No refresh token provided'});
         return;
@@ -298,13 +289,13 @@ export const getNewToken = async (req: Request, res: Response): Promise<void> =>
         const existingToken: RefreshToken | undefined =
             await authService.getRefreshToken(refreshToken);
         if (!existingToken) {
-            res.status(404).json({error: 'Token not found!'});
+            res.status(401).json({error: 'Token expried'});
             res.clearCookie('refreshToken');
             return;
         }
         jwt.verify(refreshToken, ENV.REFRESH_TOKEN_SECRET, (err, decoded) => {
             if (err) {
-                res.status(401).json({message: 'Refresh token is not valid'});
+                res.status(403).json({message: 'Refresh token is not valid'});
                 return;
             }
             const user = decoded as {email: string};
@@ -318,7 +309,6 @@ export const getNewToken = async (req: Request, res: Response): Promise<void> =>
         });
         res.status(200).json({message: 'Successfully generated new token!'});
     } catch (error) {
-        console.log(error);
         res.status(500).json({error: 'Something went wrong'});
     }
 };

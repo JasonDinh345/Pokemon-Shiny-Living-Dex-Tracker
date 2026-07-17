@@ -31,6 +31,14 @@ export async function createGoogleUser(server: any) {
         token: 'googleToken'
     });
 }
+export async function loginUser(server: any) {
+    await createTestUserAndVerify(server);
+
+    await request(server).post(`/auth/login`).send({
+        email: 'test@gmail.com',
+        password: 'password123'
+    });
+}
 export async function loginUserWithAgent(agent: any) {
     await agent.post('/auth/register').send({
         username: 'Test',
