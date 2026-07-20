@@ -14,20 +14,13 @@ export const addNewShiny = async (
     try {
         if (!pokemon.pokemon_name || !pokemon.game || !pokemon.method) {
             throw new Error('INVALID_FIELDS');
-        } else if (!email) {
-            throw new Error('INVALID_AUTH');
         }
         const addedPokemon: CaughtShiny = await prisma.caught_shinies.create({
-            data: {...pokemon, user_email: email},
+            data: {...pokemon, user_email: email}
         });
         return addedPokemon;
     } catch (error) {
-        if (error instanceof Prisma.PrismaClientKnownRequestError) {
-            switch (error.code) {
-                case 'P2003':
-                    throw new Error('USER_NOT_FOUND');
-            }
-        } else if (error instanceof Error) {
+        if (error instanceof Error) {
             throw new Error(error.message);
         }
         throw new Error();
@@ -44,10 +37,7 @@ export const getAllShiniesOfUser = async (email: string): Promise<ShinyWithCount
             throw new Error('INVALID_AUTH');
         }
         const shinies: CaughtShiny[] = await prisma.caught_shinies.findMany({
-            where: {user_email: email},
-            omit: {
-                user_email: true,
-            },
+            where: {user_email: email}
         });
         const shiniesWCount = shinies.reduce<Record<string, ShinyWithCount>>((acc, shiny) => {
             const key = shiny.pokemon_name;
@@ -59,6 +49,7 @@ export const getAllShiniesOfUser = async (email: string): Promise<ShinyWithCount
         }, {});
         return Object.values(shiniesWCount);
     } catch (error) {
+        console.log(error);
         if (error instanceof Prisma.PrismaClientKnownRequestError) {
             switch (error.code) {
                 case 'P2003':
@@ -67,6 +58,7 @@ export const getAllShiniesOfUser = async (email: string): Promise<ShinyWithCount
         } else if (error instanceof Error) {
             throw new Error(error.message);
         }
+
         throw new Error();
     }
 };
@@ -82,10 +74,7 @@ export const getShinyOfUser = async (email: string, id: number): Promise<CaughtS
             throw new Error('INVALID_AUTH');
         }
         const shiny: CaughtShiny | null = await prisma.caught_shinies.findUnique({
-            where: {user_email: email, id},
-            omit: {
-                user_email: true,
-            },
+            where: {user_email: email, id}
         });
         return shiny;
     } catch (error) {
@@ -109,25 +98,22 @@ export const getShinyOfUser = async (email: string, id: number): Promise<CaughtS
  */
 export const updateShiny = async (
     email: string,
-    pokemon: Partial<Omit<CaughtShiny, 'id'>>,
-    id: number
+    pokemon: Partial<CaughtShiny>,
+    pokemonID: number
 ): Promise<CaughtShiny> => {
+    const {user_email, id, ...pokemonData} = pokemon;
     try {
         const updatedPokemon: CaughtShiny = await prisma.caught_shinies.update({
-            where: {id, user_email: email},
-            data: pokemon,
-            omit: {
-                user_email: true,
-            },
+            where: {id: pokemonID, user_email: email},
+            data: pokemonData
         });
+
         return updatedPokemon;
     } catch (error) {
         if (error instanceof Prisma.PrismaClientKnownRequestError) {
             switch (error.code) {
                 case 'P2025':
                     throw new Error('POKEMON_NOT_FOUND');
-                case 'P2003':
-                    throw new Error('USER_NOT_FOUND');
             }
         } else if (error instanceof Error) {
             throw new Error(error.message);
@@ -140,18 +126,13 @@ export const updateShiny = async (
  * @param email user email
  * @param id pokemon id
  */
-export const deleteShiny = async (email: string, id: number): Promise<void> => {
+export const deleteShiny = async (email: string, id: number): Promise<boolean> => {
     try {
-        await prisma.caught_shinies.delete({
-            where: {user_email: email, id},
+        const res = await prisma.caught_shinies.deleteMany({
+            where: {user_email: email, id}
         });
+        return res.count > 0;
     } catch (error) {
-        if (error instanceof Prisma.PrismaClientKnownRequestError) {
-            switch (error.code) {
-                case 'P2003':
-                    throw new Error('USER_NOT_FOUND');
-            }
-        }
         throw new Error();
     }
 };

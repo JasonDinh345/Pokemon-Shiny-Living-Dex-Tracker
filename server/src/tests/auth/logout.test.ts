@@ -6,14 +6,13 @@ import request from 'supertest';
 import {server} from '../../server';
 import prisma from '../../lib/prisma';
 
-import client from '../../lib/google';
 import {loginUser, loginUserWithAgent} from '../setup';
 
 beforeEach(async () => {
     await prisma.users.deleteMany();
     await prisma.tokens.deleteMany();
 });
-describe('POST /auth/token', () => {
+describe('DELETE /auth/logout', () => {
     it('it should logout the user', async () => {
         const agent = request.agent(server);
         await loginUserWithAgent(agent);

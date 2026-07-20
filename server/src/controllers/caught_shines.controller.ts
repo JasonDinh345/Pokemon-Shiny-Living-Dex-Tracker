@@ -15,12 +15,6 @@ export const getAllShiniesOfUser = async (req: Request, res: Response) => {
     } catch (error) {
         if (error instanceof Error) {
             switch (error.message) {
-                case 'USER_NOT_FOUND':
-                    res.status(404).json({error: "User doesn't exist!"});
-                    break;
-                case 'INVALID_AUTH':
-                    res.status(401).json({error: 'User not authorized!'});
-                    break;
                 default:
                     res.status(500).json({error: 'Something went wrong!'});
             }
@@ -48,12 +42,6 @@ export const getShinyOfUser = async (req: Request, res: Response) => {
     } catch (error) {
         if (error instanceof Error) {
             switch (error.message) {
-                case 'USER_NOT_FOUND':
-                    res.status(404).json({error: "User doesn't exist!"});
-                    break;
-                case 'INVALID_AUTH':
-                    res.status(401).json({error: 'User not authorized!'});
-                    break;
                 default:
                     res.status(500).json({error: 'Something went wrong!'});
             }
@@ -77,12 +65,6 @@ export const addNewShiny = async (req: Request, res: Response) => {
                 case 'INVALID_FIELDS':
                     res.status(400).json({error: 'Invald required fields!'});
                     break;
-                case 'USER_NOT_FOUND':
-                    res.status(404).json({error: "User doesn't exist!"});
-                    break;
-                case 'INVALID_AUTH':
-                    res.status(401).json({error: 'User not authorized!'});
-                    break;
                 default:
                     res.status(500).json({error: 'Something went wrong!'});
             }
@@ -104,19 +86,12 @@ export const updateShiny = async (req: Request, res: Response) => {
             data,
             Number(id)
         );
-
-        res.status(204).json(updateShiny);
+        res.status(200).json(updateShiny);
     } catch (error) {
         if (error instanceof Error) {
             switch (error.message) {
-                case 'USER_NOT_FOUND':
-                    res.status(404).json({error: "User doesn't exist!"});
-                    break;
                 case 'POKEMON_NOT_FOUND':
                     res.status(404).json({error: "Pokemon doesn't exist!"});
-                    break;
-                case 'INVALID_AUTH':
-                    res.status(401).json({error: 'User not authorized!'});
                     break;
                 default:
                     res.status(500).json({error: 'Something went wrong!'});

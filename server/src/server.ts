@@ -23,6 +23,6 @@ server.get('/', (req: Request, res: Response) => {
 
 server.use('/auth', authRouter);
 server.use('/user', userRouter);
-server.use('/caugth-shinies', caughtShinyRouter);
+server.use('/caught-shinies', caughtShinyRouter);
 
 export {server};
