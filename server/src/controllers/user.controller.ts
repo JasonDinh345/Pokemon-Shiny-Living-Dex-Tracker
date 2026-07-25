@@ -1,6 +1,6 @@
 import {Request, Response} from 'express';
 import * as userService from '..//services/user.service';
-import User from '../types/users.type';
+
 /**
  * updates a user
  * @param req request from user
