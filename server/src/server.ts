@@ -1,6 +1,6 @@
 import 'dotenv/config';
 
-import express, {Request, Response} from 'express';
+import express from 'express';
 import cors from 'cors';
 import authRouter from './routes/auth.router';
 import userRouter from './routes/user.router';
@@ -12,7 +12,7 @@ const server = express();
 
 server.use(
     cors({
-        origin: 'http://localhost:3000',
+        origin: process.env.CLIENT_URL,
         credentials: true
     })
 );
