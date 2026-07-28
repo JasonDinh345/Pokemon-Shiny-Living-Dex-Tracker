@@ -293,21 +293,23 @@ export const getNewToken = async (req: Request, res: Response): Promise<void> =>
             res.clearCookie('refreshToken');
             return;
         }
-        jwt.verify(refreshToken, ENV.REFRESH_TOKEN_SECRET, (err, decoded) => {
-            if (err) {
-                res.status(403).json({message: 'Refresh token is not valid'});
-                return;
-            }
-            const user = decoded as {email: string};
-            const accessToken = authService.generateAccessToken(user.email);
-            res.cookie('accessToken', accessToken, {
-                httpOnly: true,
-                secure: ENV.PROJECT_STATUS === 'production',
-                sameSite: 'strict',
-                maxAge: 15 * 60 * 1000
-            });
+        const decoded = jwt.verify(refreshToken, ENV.REFRESH_TOKEN_SECRET) as {email: string};
+
+        const existingUser = await userService.findUserByEmail(decoded.email);
+        if (!existingUser) {
+            throw new Error();
+        }
+        const accessToken = authService.generateAccessToken(existingUser.email);
+        res.cookie('accessToken', accessToken, {
+            httpOnly: true,
+            secure: process.env.PROJECT_STATUS === 'production',
+            sameSite: 'strict',
+            maxAge: 15 * 60 * 1000
         });
-        res.status(200).json({message: 'Successfully generated new token!'});
+        res.status(200).json({
+            email: existingUser.email,
+            username: existingUser.username
+        });
     } catch (error) {
         res.status(500).json({error: 'Something went wrong'});
     }
