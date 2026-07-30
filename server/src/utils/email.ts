@@ -6,11 +6,11 @@ import resend from '../lib/resend';
  * @param token verification token
  */
 export const sendVerificationEmail = async (email: string, token: string): Promise<void> => {
-    const verifyUrl = `${ENV.CLIENT_URL}/auth/verify-email?token=${token}`;
+    const verifyUrl = `${ENV.CLIENT_URL}/redirect/verify-email?token=${token}`;
     await resend.emails.send({
         from: `${ENV.EMAIL_DOMAIN}`,
         to: email,
-        subject: 'Verify your email',
+        subject: 'PrismaDex: Verify your email',
         html: `<a href="${verifyUrl}">Verify Email</a>`
     });
 };
@@ -20,11 +20,11 @@ export const sendVerificationEmail = async (email: string, token: string): Promi
  * @param token reset password token
  */
 export const sendResetPassEmail = async (email: string, token: string): Promise<void> => {
-    const verifyUrl = `${ENV.CLIENT_URL}/auth/reset-password?token=${token}`;
+    const verifyUrl = `${ENV.CLIENT_URL}/redirect/reset-password?token=${token}`;
     await resend.emails.send({
         from: `${ENV.EMAIL_DOMAIN}`,
         to: email,
-        subject: 'Reset Your Password!',
+        subject: 'PrismaDex: Reset Your Password!',
         html: `<a href="${verifyUrl}">Reset Password</a>`
     });
 };

@@ -24,7 +24,7 @@ export const ENV = {
     REFRESH_TOKEN_SECRET: getEnv('REFRESH_TOKEN_SECRET'),
     RESEND_API_KEY: getEnv('RESEND_API_KEY'),
     EMAIL_DOMAIN: getEnv('EMAIL_DOMAIN'),
-    CLIENT_URL: getEnv('EMAIL_DOMAIN'),
+    CLIENT_URL: getEnv('CLIENT_URL'),
     PROJECT_STATUS: process.env.PROJECT_STATUS || 'development',
     TEST_EMAIL: getEnv('TEST_EMAIL')
 };

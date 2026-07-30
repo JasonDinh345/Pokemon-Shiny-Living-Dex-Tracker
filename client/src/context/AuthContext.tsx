@@ -1,4 +1,6 @@
 'use client';
+
+import api from '@/lib/axios';
 import axios from 'axios';
 import React, {useState, useEffect, createContext, useContext} from 'react';
 
@@ -7,6 +9,7 @@ type AuthContextType = {
     logout: () => void;
     user?: {email: string; username: string};
     error: string;
+    register: (data: {email: string; password: string; username: string}) => void;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -17,7 +20,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({children}) 
     useEffect(() => {
         async function authUser() {
             try {
-                const res = await axios.post('/auth/token');
+                const res = await api.post('/auth/token');
                 setUser(res.data);
             } catch (error) {
                 if (axios.isAxiosError(error) && error.response?.status === 401) {
@@ -29,12 +32,25 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({children}) 
         }
         authUser();
     }, []);
-
-    const login = async (data: {email: string; password: string}) => {
+    const register = async (data: {email: string; password: string; username: string}) => {
+        setError('');
         try {
-            const res = await axios.post('/auth/login', data);
+            const res = await api.post('/auth/register', data);
             setUser(res.data);
-        } catch {
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                setError(error.response?.data.error);
+            } else {
+                setError(`Something went wrong!`);
+            }
+        }
+    };
+    const login = async (data: {email: string; password: string}) => {
+        setError('');
+        try {
+            const res = await api.post('/auth/login', data);
+            setUser(res.data);
+        } catch (error) {
             if (axios.isAxiosError(error)) {
                 setError(error.response?.data.error);
             } else {
@@ -45,7 +61,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({children}) 
 
     const logout = async () => {
         try {
-            await axios.post('/auth/logout');
+            await api.post('/auth/logout');
             setUser(undefined);
         } catch {
             if (axios.isAxiosError(error)) {
@@ -57,7 +73,9 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({children}) 
     };
 
     return (
-        <AuthContext.Provider value={{login, logout, user, error}}>{children}</AuthContext.Provider>
+        <AuthContext.Provider value={{login, logout, user, error, register}}>
+            {children}
+        </AuthContext.Provider>
     );
 };
 export const useAuth = () => {

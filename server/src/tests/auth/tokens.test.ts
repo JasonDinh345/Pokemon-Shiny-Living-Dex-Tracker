@@ -25,25 +25,25 @@ describe('POST /auth/token', () => {
         const response = await request(server).post('/auth/token');
         expect(response.status).toBe(400);
     });
-    it('it should generate new token with unvalid refresh token', async () => {
+    it('it should generate new token with expired refresh token', async () => {
         await loginUser(server);
         const response = await request(server)
             .post('/auth/token')
             .set('Cookie', `refreshToken=${'fakeRefreshToken'}`);
-        expect(response.status).toBe(401);
+        expect(response.status).toBe(403);
     });
-    it('it should generate new token with expired refresh token', async () => {
+    it('it should generate new token with unvalid refresh token', async () => {
         await loginUser(server);
         jest.spyOn(authService, 'getRefreshToken').mockResolvedValueOnce({
             token: 'expiredRefreshToken',
             user_email: 'test@gmail.com',
-            expires_on: new Date(Date.now() + 60 * 60 * 1000),
+            expires_on: new Date(Date.now() - 24 * 60 * 60 * 1000),
             type: 'REFRESH'
         });
 
         const response = await request(server)
             .post('/auth/token')
             .set('Cookie', `refreshToken=${'expiredRefreshToken'}`);
-        expect(response.status).toBe(403);
+        expect(response.status).toBe(401);
     });
 });

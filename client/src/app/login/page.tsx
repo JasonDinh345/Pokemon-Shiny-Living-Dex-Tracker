@@ -6,7 +6,7 @@ import {useState} from 'react';
 export default function Login() {
     const [isRegistering, setIsRegistering] = useState<boolean>(false);
     return (
-        <div>
+        <div className="flex flex-col items-center justify-center ">
             {isRegistering ? (
                 <RegisterForm setIsRegistering={setIsRegistering} />
             ) : (

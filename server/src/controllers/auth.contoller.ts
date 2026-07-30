@@ -125,17 +125,17 @@ export const login = async (req: Request, res: Response) => {
                     res.status(409).json({
                         error: 'Please sign in with Google!'
                     });
-                    break;
+                    return;
                 case 'NOT_VERIFIED':
                     res.status(403).json({
                         error: 'Please verify your account!'
                     });
-                    break;
+                    return;
                 case 'INVALID':
                     res.status(401).json({
                         error: 'Email or password is incorrect!'
                     });
-                    break;
+                    return;
             }
         }
 
@@ -289,7 +289,7 @@ export const getNewToken = async (req: Request, res: Response): Promise<void> =>
         const existingToken: RefreshToken | undefined =
             await authService.getRefreshToken(refreshToken);
         if (!existingToken) {
-            res.status(401).json({error: 'Token expried'});
+            res.status(403).json({error: 'Token expried'});
             res.clearCookie('refreshToken');
             return;
         }
@@ -311,6 +311,11 @@ export const getNewToken = async (req: Request, res: Response): Promise<void> =>
             username: existingUser.username
         });
     } catch (error) {
+        if (error instanceof jwt.JsonWebTokenError) {
+            res.clearCookie('refreshToken');
+            res.status(401).json({error: 'Invalid refresh token'});
+            return;
+        }
         res.status(500).json({error: 'Something went wrong'});
     }
 };
