@@ -20,10 +20,10 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en" className={`${sora.className} h-full antialiased`}>
-            <body className="min-h-screen flex flex-col bg-red-300">
+            <body className="h-full flex flex-col bg-primary">
                 <AuthProvider>
                     <NavBar />
-                    <main className="flex-1 flex flex-col items-center bg-red-300">
+                    <main className="flex-1 flex flex-col items-center bg-primary">
                         <AllPokemonProvider>{children}</AllPokemonProvider>
                     </main>
                     <Footer />

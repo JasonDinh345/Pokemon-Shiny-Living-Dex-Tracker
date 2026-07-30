@@ -24,8 +24,12 @@ export default function LoginForm({setIsRegistering}: LoginFormProps) {
         }
     };
     return (
-        <div className="flex-col justify-center border-2 border-gray-700 rounded-lg p-2 mt-8 bg-[#f8f8ff] w-xl">
-            <form onSubmit={handleSubmit} className=" flex flex-col justify-center gap-4">
+        <div
+            className={`flex flex-col justify-start items-center border-gray-700 pr-32 bg-tertiary w-2/5 h-full p-24 duration-300 ease-in`}
+        >
+            <h1 className="text-4xl text-center font-bold">PrismaDex</h1>
+            <h3 className="pt-4 text-xl text-center ">✨Welcome back!✨</h3>
+            <form onSubmit={handleSubmit} className="pt-8 flex flex-col justify-center gap-4 w-1/2">
                 <LabelInput
                     type={'email'}
                     onChange={handleChange}
@@ -38,7 +42,11 @@ export default function LoginForm({setIsRegistering}: LoginFormProps) {
                     value={form.password}
                     label="Password"
                 />
-                <input className="border-2 border-black rounded-lg" type="submit" value="Login" />
+                <input
+                    className="border-2 border-black rounded-lg bg-secondary"
+                    type="submit"
+                    value="Login"
+                />
                 {error || <p>{error}</p>}
                 <p onClick={() => setIsRegistering(true)}>New User?</p>
             </form>

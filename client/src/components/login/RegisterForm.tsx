@@ -29,7 +29,7 @@ export default function RegisterForm({setIsRegistering}: RegisterFormProps) {
         await register(form);
     };
     return (
-        <div className="flex-col justify-center border-2 border-gray-700 rounded-lg p-2 mt-8">
+        <div className="flex-col justify-center border-2 border-gray-700 rounded-lg p-2 mt-8 justify-self-start">
             <form onSubmit={handleSubmit} className=" flex flex-col justify-center">
                 <LabelInput
                     type={'email'}

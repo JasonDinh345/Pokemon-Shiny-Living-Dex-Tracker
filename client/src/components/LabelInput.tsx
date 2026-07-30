@@ -18,7 +18,7 @@ export function LabelInput({type, onChange, label, value, fieldName, pattern}: L
                 <h3>{label}:</h3>
             </label>
             <input
-                className="border-2 border-black rounded-md pl-2"
+                className="border-2 border-black rounded-md pl-2 w-full bg-secondary"
                 id={updatedFieldName}
                 name={updatedFieldName}
                 type={type}

@@ -61,7 +61,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({children}) 
 
     const logout = async () => {
         try {
-            await api.post('/auth/logout');
+            await api.delete('/auth/logout');
             setUser(undefined);
         } catch {
             if (axios.isAxiosError(error)) {
