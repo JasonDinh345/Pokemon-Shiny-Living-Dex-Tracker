@@ -25,7 +25,7 @@ export default function LoginForm({setIsRegistering}: LoginFormProps) {
     };
     return (
         <div
-            className={`flex flex-col justify-start items-center border-gray-700 pr-32 bg-tertiary w-2/5 h-full p-24 duration-300 ease-in`}
+            className={`flex flex-col justify-start items-center border-gray-700 pr-32 bg-tertiary w-2/5 h-full p-24`}
         >
             <h1 className="text-4xl text-center font-bold">PrismaDex</h1>
             <h3 className="pt-4 text-xl text-center ">✨Welcome back!✨</h3>
@@ -41,6 +41,7 @@ export default function LoginForm({setIsRegistering}: LoginFormProps) {
                     onChange={handleChange}
                     value={form.password}
                     label="Password"
+                    autocomplete="current-password"
                 />
                 <input
                     className="border-2 border-black rounded-lg bg-secondary"

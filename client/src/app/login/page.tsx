@@ -1,11 +1,13 @@
 'use client';
 import LoginForm from '@/components/login/LoginForm';
 import RegisterForm from '@/components/login/RegisterForm';
+
 import {motion} from 'motion/react';
 import {useState} from 'react';
 
 export default function Login() {
     const [isRegistering, setIsRegistering] = useState<boolean>(false);
+
     return (
         <div
             className={`relative flex flex-1 flex-row items-center justify-between w-screen bg-tertiary overflow-hidden rounded-l-md`}

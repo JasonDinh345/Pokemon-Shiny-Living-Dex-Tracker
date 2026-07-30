@@ -28,9 +28,12 @@ export default function RegisterForm({setIsRegistering}: RegisterFormProps) {
         }
         await register(form);
     };
+    //SETUP REDIRECT AFTER SUCCESSFUL REGISTER
     return (
-        <div className="flex-col justify-center border-2 border-gray-700 rounded-lg p-2 mt-8 justify-self-start">
-            <form onSubmit={handleSubmit} className=" flex flex-col justify-center">
+        <div className="flex flex-col justify-start items-center border-gray-700 pr-32 bg-tertiary w-2/5 h-full p-24">
+            <h1 className="text-4xl text-center font-bold">Welcome to PrismaDex!</h1>
+            <h3 className="pt-4 text-xl text-center ">✨Start your Dex today!✨</h3>
+            <form onSubmit={handleSubmit} className="pt-8 flex flex-col justify-center gap-4 w-1/2">
                 <LabelInput
                     type={'email'}
                     onChange={handleChange}

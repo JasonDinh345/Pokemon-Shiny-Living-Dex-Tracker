@@ -7,9 +7,18 @@ interface LabelInputProps {
     value?: string;
     fieldName?: string;
     pattern?: string;
+    autocomplete?: string;
 }
 
-export function LabelInput({type, onChange, label, value, fieldName, pattern}: LabelInputProps) {
+export function LabelInput({
+    type,
+    onChange,
+    label,
+    value,
+    fieldName,
+    pattern,
+    autocomplete
+}: LabelInputProps) {
     const updatedFieldName = (fieldName || label.replace(/\s+/g, '')).toLowerCase();
 
     return (
@@ -18,7 +27,7 @@ export function LabelInput({type, onChange, label, value, fieldName, pattern}: L
                 <h3>{label}:</h3>
             </label>
             <input
-                className="border-2 border-black rounded-md pl-2 w-full bg-secondary"
+                className="border-2 border-black rounded-md pl-2 w-full h-10 bg-secondary"
                 id={updatedFieldName}
                 name={updatedFieldName}
                 type={type}
@@ -26,6 +35,7 @@ export function LabelInput({type, onChange, label, value, fieldName, pattern}: L
                 value={value ?? ''}
                 {...(pattern ? {pattern} : {})}
                 required
+                autoComplete={autocomplete || ''}
             />
         </div>
     );

@@ -5,6 +5,7 @@ import NavBar from '@/components/NavBar';
 import {AllPokemonProvider} from '@/context/AllPokemonContext';
 import Footer from '@/components/Footer';
 import {AuthProvider} from '@/context/AuthContext';
+import PageTransition from '@/components/PageTransition';
 
 const sora = Sora({subsets: ['latin'], weight: ['400', '700']});
 
@@ -19,13 +20,17 @@ export default function RootLayout({
     children: React.ReactNode;
 }>) {
     return (
-        <html lang="en" className={`${sora.className} h-full antialiased`}>
-            <body className="h-full flex flex-col bg-primary">
+        <html lang="en" className={`${sora.className} h-full antialiased `}>
+            <body className="flex h-screen flex-col overflow-hidden bg-tertiary">
                 <AuthProvider>
                     <NavBar />
-                    <main className="flex-1 flex flex-col items-center bg-primary">
-                        <AllPokemonProvider>{children}</AllPokemonProvider>
-                    </main>
+
+                    <AllPokemonProvider>
+                        <main className="flex min-h-0 flex-1 overflow-hidden bg-tertiary">
+                            <PageTransition>{children}</PageTransition>
+                        </main>
+                    </AllPokemonProvider>
+
                     <Footer />
                 </AuthProvider>
             </body>
