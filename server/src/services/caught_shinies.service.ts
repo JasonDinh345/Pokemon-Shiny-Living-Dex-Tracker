@@ -1,6 +1,6 @@
 import {Prisma} from '@prisma/client';
 import prisma from '../lib/prisma';
-import CaughtShiny, {ShinyWithCount} from '../types/caught_shinies_type';
+import CaughtShiny from '../types/caught_shinies_type';
 /**
  * Inserts new shiny into users collection
  * @param pokemon pokemon data
@@ -31,7 +31,7 @@ export const addNewShiny = async (
  * @param email user email
  * @returns the collection of shinies of a user
  */
-export const getAllShiniesOfUser = async (email: string): Promise<ShinyWithCount[]> => {
+export const getAllShiniesOfUser = async (email: string): Promise<CaughtShiny[]> => {
     try {
         if (!email) {
             throw new Error('INVALID_AUTH');
@@ -39,15 +39,7 @@ export const getAllShiniesOfUser = async (email: string): Promise<ShinyWithCount
         const shinies: CaughtShiny[] = await prisma.caught_shinies.findMany({
             where: {user_email: email}
         });
-        const shiniesWCount = shinies.reduce<Record<string, ShinyWithCount>>((acc, shiny) => {
-            const key = shiny.pokemon_name;
-            if (!acc[key]) {
-                acc[key] = {...shiny, count: 0};
-            }
-            acc[key].count++;
-            return acc;
-        }, {});
-        return Object.values(shiniesWCount);
+        return shinies;
     } catch (error) {
         console.log(error);
         if (error instanceof Prisma.PrismaClientKnownRequestError) {

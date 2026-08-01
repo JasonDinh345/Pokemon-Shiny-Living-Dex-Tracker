@@ -1,5 +1,5 @@
 import {Request, Response} from 'express';
-import CaughtShiny, {ShinyWithCount} from '../types/caught_shinies_type';
+import CaughtShiny from '../types/caught_shinies_type';
 import * as caughtShinyService from '../services/caught_shinies.service';
 
 /**
@@ -10,7 +10,7 @@ import * as caughtShinyService from '../services/caught_shinies.service';
 export const getAllShiniesOfUser = async (req: Request, res: Response) => {
     try {
         const {email} = req.user!;
-        const shinies: ShinyWithCount[] = await caughtShinyService.getAllShiniesOfUser(email);
+        const shinies: CaughtShiny[] = await caughtShinyService.getAllShiniesOfUser(email);
         res.status(200).json(shinies);
     } catch (error) {
         if (error instanceof Error) {

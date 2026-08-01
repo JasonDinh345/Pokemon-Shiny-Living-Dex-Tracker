@@ -1,4 +1,4 @@
-import {LabelInput} from '@/components/LabelInput';
+import {LabelInput} from '@/components/ui/LabelInput';
 import {useAuth} from '@/context/AuthContext';
 import {useState} from 'react';
 
@@ -21,6 +21,7 @@ export default function LoginForm({setIsRegistering}: LoginFormProps) {
         await login(form);
         if (!error) {
             console.log('done');
+            //fix
         }
     };
     return (

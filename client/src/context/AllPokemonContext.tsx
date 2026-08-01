@@ -18,7 +18,6 @@ const AllPokemonContext = createContext<AllPokemonContextType | undefined>(undef
 export const AllPokemonProvider = ({children}: {children: ReactNode}) => {
     const [allGen, setAllGen] = useState<Generation[]>([]);
     const [allPokemon, setAllPokemon] = useState<Pokemon[]>([]);
-    const [loadedGens, setLoadedGens] = useState<number[]>([]);
     const [isReady, setIsReady] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -31,16 +30,15 @@ export const AllPokemonProvider = ({children}: {children: ReactNode}) => {
             while (!isEnd) {
                 try {
                     const genData = await getGeneration(genNum++);
-                    if (genData.id === 1) {
-                        const pokemonData = await Promise.all(
-                            genData.pokemon_species.map((pokemon) => {
-                                const pokemonId = Number(pokemon.url.split('/').at(-2));
-                                return getPokemon(pokemonId);
-                            })
-                        );
-                        setAllPokemon(pokemonData);
-                        setLoadedGens([1]);
-                    }
+
+                    const pokemonData = await Promise.all(
+                        genData.pokemon_species.map((pokemon) => {
+                            const pokemonId = Number(pokemon.url.split('/').at(-2));
+                            return getPokemon(pokemonId);
+                        })
+                    );
+                    setAllPokemon((prev) => [...prev, ...pokemonData]);
+
                     setAllGen((prev) => [...prev, genData]);
                 } catch (error) {
                     if (error instanceof Error && error.message.startsWith('Unknown Generation:')) {
@@ -50,27 +48,12 @@ export const AllPokemonProvider = ({children}: {children: ReactNode}) => {
                     }
                 }
             }
-
+            setAllPokemon((prev) => prev.sort((pokemon1, pokemon2) => pokemon1.id - pokemon2.id));
             setIsReady(true);
         };
 
         fetchGens();
     }, []);
-    const loadGen = async (id: number) => {
-        if (id > allGen.length) {
-            throw new Error("Generation doesn't exist");
-        }
-        if (!loadedGens.includes(id)) {
-            const genData = allGen[id - 1];
-            const pokemonData = await Promise.all(
-                genData.pokemon_species.map((pokemon) => {
-                    const pokemonId = Number(pokemon.url.split('/').at(-2));
-                    return getPokemon(pokemonId);
-                })
-            );
-            setAllPokemon((prev) => [...prev, ...pokemonData]);
-        }
-    };
 
     return (
         <AllPokemonContext.Provider value={{allPokemon, allGen, error, isReady, setIsReady}}>

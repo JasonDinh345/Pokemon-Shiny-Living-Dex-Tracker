@@ -1,11 +1,14 @@
 import type {Metadata} from 'next';
 import {Sora} from 'next/font/google';
 import './globals.css';
-import NavBar from '@/components/NavBar';
+import NavBar from '@/components/layout/NavBar';
 import {AllPokemonProvider} from '@/context/AllPokemonContext';
-import Footer from '@/components/Footer';
+import Footer from '@/components/layout/Footer';
 import {AuthProvider} from '@/context/AuthContext';
-import PageTransition from '@/components/PageTransition';
+import PageTransition from '@/components/misc/PageTransition';
+
+import {AddPokemonForm} from '@/components/modal/AddPokemonForm';
+import {AddPokemonModelProvider} from '@/context/AddPokemonModalContext';
 
 const sora = Sora({subsets: ['latin'], weight: ['400', '700']});
 
@@ -23,14 +26,16 @@ export default function RootLayout({
         <html lang="en" className={`${sora.className} h-full antialiased `}>
             <body className="flex h-screen flex-col overflow-hidden bg-tertiary">
                 <AuthProvider>
-                    <NavBar />
+                    <AddPokemonModelProvider>
+                        <NavBar />
 
-                    <AllPokemonProvider>
-                        <main className="flex min-h-0 flex-1 overflow-hidden bg-tertiary">
-                            <PageTransition>{children}</PageTransition>
-                        </main>
-                    </AllPokemonProvider>
-
+                        <AllPokemonProvider>
+                            <main className="flex min-h-0 flex-1 overflow-hidden bg-tertiary">
+                                <PageTransition>{children}</PageTransition>
+                            </main>
+                            <AddPokemonForm />
+                        </AllPokemonProvider>
+                    </AddPokemonModelProvider>
                     <Footer />
                 </AuthProvider>
             </body>

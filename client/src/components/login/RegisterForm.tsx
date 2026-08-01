@@ -1,7 +1,7 @@
 'use client';
 
 import {useState} from 'react';
-import {LabelInput} from '../LabelInput';
+import {LabelInput} from '../ui/LabelInput';
 import {useAuth} from '@/context/AuthContext';
 
 type RegisterFormProps = {

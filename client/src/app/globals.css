@@ -11,13 +11,13 @@
     --font-sans: var(--font-geist-sans);
     --font-mono: var(--font-geist-mono);
     --color-primary: #228f72;
-    --color-secondary: #fcfdfc;
-    --color-tertiary: #f4ffe2;
+    --color-secondary: #f5fff5;
+    --color-tertiary: #edfade;
 }
 
 @media (prefers-color-scheme: dark) {
     :root {
-        --background: #0a0a0a;
+        --background: lch(2.74% 0 296.81);
         --foreground: #ededed;
     }
 }
