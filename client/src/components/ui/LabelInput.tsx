@@ -1,42 +1,63 @@
-import {useEffect, useState} from 'react';
+import {InputHTMLAttributes, SelectHTMLAttributes} from 'react';
 
-interface LabelInputProps {
-    type: string;
-    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+interface LabelInputProps extends InputHTMLAttributes<HTMLInputElement> {
     label: string;
-    value?: string;
     fieldName?: string;
-    pattern?: string;
-    autocomplete?: string;
+    required?: boolean;
 }
 
-export function LabelInput({
-    type,
-    onChange,
-    label,
-    value,
-    fieldName,
-    pattern,
-    autocomplete
-}: LabelInputProps) {
+export function LabelInput({label, required, fieldName, ...inputProps}: LabelInputProps) {
     const updatedFieldName = (fieldName || label.replace(/\s+/g, '')).toLowerCase();
 
     return (
-        <div>
+        <div className="w-full">
             <label htmlFor={updatedFieldName}>
-                <h3>{label}:</h3>
+                <h3>
+                    {label}
+                    {required && <span className="text-red-400"> * </span>}:
+                </h3>
             </label>
             <input
                 className="border-2 border-black rounded-md pl-2 w-full h-10 bg-secondary"
                 id={updatedFieldName}
                 name={updatedFieldName}
-                type={type}
-                onChange={onChange}
-                value={value ?? ''}
-                {...(pattern ? {pattern} : {})}
-                required
-                autoComplete={autocomplete || ''}
+                {...inputProps}
             />
+        </div>
+    );
+}
+interface LabelSelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
+    label: string;
+    fieldName?: string;
+}
+
+export function LabelSelect({
+    label,
+    fieldName,
+    required,
+    children,
+    disabled,
+    ...inputProps
+}: LabelSelectProps) {
+    const updatedFieldName = (fieldName || label.replace(/\s+/g, '-')).toLowerCase();
+
+    return (
+        <div>
+            <label htmlFor={updatedFieldName}>
+                <h3>
+                    <span>{label}</span>
+                    {required && <span className="text-red-400"> * </span>}:
+                </h3>
+            </label>
+            <select
+                id={updatedFieldName}
+                name={updatedFieldName}
+                required={required}
+                className={`border-2 border-black rounded-md pl-2 w-full h-10 bg-secondary ${disabled && 'opacity-50'}`}
+                {...inputProps}
+            >
+                {children}
+            </select>
         </div>
     );
 }

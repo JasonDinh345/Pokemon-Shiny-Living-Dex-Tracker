@@ -12,8 +12,8 @@ type AddPokemonModelContextType = {
     setIsVisible: (isVisible: boolean) => void;
     addShiny: (pokemonData: Partial<CaughtShiny>) => Promise<CaughtShiny>;
     chosenPokemon: Pokemon | null;
-    sendPokemonToForm: (pokemon: Pokemon) => void;
-    handleExit: () => void;
+
+    setChosenPokemon: (pokemon: Pokemon | null) => void;
 };
 const AddPokemonModelContext = createContext<AddPokemonModelContextType | undefined>(undefined);
 
@@ -34,14 +34,7 @@ export const AddPokemonModelProvider = ({children}: {children: ReactNode}) => {
             throw error;
         }
     };
-    const sendPokemonToForm = (pokemon: Pokemon) => {
-        setChosenPokemon(pokemon);
-        setIsVisible(true);
-    };
-    const handleExit = () => {
-        setIsVisible(false);
-        setChosenPokemon(null);
-    };
+
     return (
         <AddPokemonModelContext.Provider
             value={{
@@ -50,8 +43,8 @@ export const AddPokemonModelProvider = ({children}: {children: ReactNode}) => {
                 isVisible,
                 setIsVisible,
                 chosenPokemon,
-                sendPokemonToForm,
-                handleExit
+
+                setChosenPokemon
             }}
         >
             {children}

@@ -9,22 +9,24 @@ export function AddPokemonSearch() {
     const [query, setQuery] = useState<string>('');
     const [isFocused, setIsFocused] = useState<boolean>(false);
     const {allPokemon} = useAllPokemon();
-    const {sendPokemonToForm} = useAddPokemonModal();
+    const {setChosenPokemon} = useAddPokemonModal();
 
-    const matchingPokemon = allPokemon.filter((pokemon) =>
-        pokemon.name.toLowerCase().startsWith(query.toLowerCase())
+    const matchingPokemon = allPokemon.filter(
+        (pokemon) =>
+            pokemon.name.toLowerCase().startsWith(query.toLowerCase()) ||
+            pokemon.id.toString().startsWith(query)
     );
     const filteredPokemon = matchingPokemon.slice(0, 10);
     return (
         <>
             <input
-                type="text"
+                type="search"
                 id="pokeSearch"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 onFocus={() => setIsFocused(true)}
                 onBlur={() => setIsFocused(false)}
-                placeholder="Search for a shiny..."
+                placeholder="Search by name or ID..."
                 autoComplete="off"
                 className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
             />
@@ -34,9 +36,13 @@ export function AddPokemonSearch() {
                     {filteredPokemon.map((pokemon) => (
                         <div
                             className="flex flex-row justify-between items-center p-2 hover:bg-tertiary hover:border-2 cursor-pointer hover:border-primary box-border border-b-2 border-tertiary"
-                            onMouseDown={() => sendPokemonToForm(pokemon)}
+                            onMouseDown={() => setChosenPokemon(pokemon)}
+                            key={pokemon.id}
                         >
-                            <p>{capitilize(pokemon.name)}</p>
+                            <div className="flex flex-row gap-2">
+                                <p className="text-gray-500 italic">#{pokemon.id}</p>
+                                <p>{capitilize(pokemon.name)}</p>
+                            </div>
                             <Image
                                 alt={pokemon.name}
                                 width={50}

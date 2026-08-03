@@ -42,7 +42,7 @@ export default function LoginForm({setIsRegistering}: LoginFormProps) {
                     onChange={handleChange}
                     value={form.password}
                     label="Password"
-                    autocomplete="current-password"
+                    autoComplete="current-password"
                 />
                 <input
                     className="border-2 border-black rounded-lg bg-secondary"

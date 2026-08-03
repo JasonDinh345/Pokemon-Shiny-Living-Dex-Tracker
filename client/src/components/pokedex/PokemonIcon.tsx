@@ -15,7 +15,7 @@ export const PokemonIcon = React.memo(function PokemonIcon({
 }: PokemonIconType) {
     return (
         <div
-            className={`bg-secondary m-1 border-2 relative border-primary rounded-4xl shadow-[4px_5px_3px_gray] overflow-hidden hover:bg-gray-400 duration-100 ease-in ${caughtList.length == 0 && 'opacity-60'}`}
+            className={`bg-secondary m-1 border-2 relative border-primary rounded-4xl shadow-normal overflow-hidden hover:bg-gray-400 duration-100 ease-in ${caughtList.length == 0 && 'opacity-60'}`}
         >
             {caughtList.length > 1 && (
                 <div className="absolute right-2 top-2 bg-primary rounded-4xl text-center flex items-center justify-center size-6">

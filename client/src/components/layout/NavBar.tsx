@@ -14,7 +14,7 @@ export default function NavBar() {
                     <Link href="/pokedex">PokeDex</Link> |
                     <button
                         onClick={() => setIsVisible(true)}
-                        className="bg-primary pl-2 pr-2 rounded-2xl text-tertiary hover:text-black hover:shadow-[4px_5px_3px_gray] duration:500 ease-in transition-all shadow-[2px_2px_3px_gray] "
+                        className="bg-primary pl-2 pr-2 rounded-2xl text-tertiary hover:text-black hover:shadow-normal duration:500 ease-in transition-all shadow-[2px_2px_3px_gray] "
                     >
                         Add to Pokédex
                     </button>{' '}
