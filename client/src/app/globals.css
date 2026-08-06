@@ -14,7 +14,7 @@
     --color-darkprimary: #1b7a62;
     --color-secondary: #f5fff5;
     --color-tertiary: #edfade;
-    --shadow-normal: 4px 5px 3px gray;
+    --shadow-normal: 4px 5px 3px rgba(0, 0, 0, 0.5);
 }
 
 @media (prefers-color-scheme: dark) {

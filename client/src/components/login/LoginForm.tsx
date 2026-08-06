@@ -1,5 +1,8 @@
 import {LabelInput} from '@/components/ui/LabelInput';
 import {useAuth} from '@/context/AuthContext';
+import {errorToast} from '@/util/toast';
+import axios from 'axios';
+import {useRouter} from 'next/navigation';
 import {useState} from 'react';
 
 type LoginFormProps = {
@@ -7,7 +10,9 @@ type LoginFormProps = {
 };
 
 export default function LoginForm({setIsRegistering}: LoginFormProps) {
-    const {login, error} = useAuth();
+    const router = useRouter();
+    const {login} = useAuth();
+    const [error, setError] = useState<string>('');
     const [form, setForm] = useState<{email: string; password: string}>({
         email: '',
         password: ''
@@ -16,12 +21,19 @@ export default function LoginForm({setIsRegistering}: LoginFormProps) {
         const {name, value} = e.target;
         setForm((prev) => ({...prev, [name]: value}));
     };
-    const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        await login(form);
-        if (!error) {
-            console.log('done');
-            //fix
+        setError('');
+        try {
+            await login(form);
+
+            router.push('/pokedex');
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                const message = error.response?.data.message ?? 'Something went wrong.';
+                setError(message);
+                errorToast(message);
+            }
         }
     };
     return (
@@ -45,11 +57,11 @@ export default function LoginForm({setIsRegistering}: LoginFormProps) {
                     autoComplete="current-password"
                 />
                 <input
-                    className="border-2 border-black rounded-lg bg-secondary"
+                    className="bg-primary p-2 rounded-3xl border-2 hover:text-black text-secondary border-black shadow-normal transition-all duration-100 ease-in hover:bg-darkprimary hover:shadow-[2px_2px_3px_gray]"
                     type="submit"
                     value="Login"
                 />
-                {error || <p>{error}</p>}
+                {error && <p className="text-red-400 italic">{error}</p>}
                 <p onClick={() => setIsRegistering(true)}>New User?</p>
             </form>
         </div>

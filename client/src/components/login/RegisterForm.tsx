@@ -3,36 +3,61 @@
 import {useState} from 'react';
 import {LabelInput} from '../ui/LabelInput';
 import {useAuth} from '@/context/AuthContext';
+import {errorToast} from '@/util/toast';
+import axios from 'axios';
 
 type RegisterFormProps = {
     setIsRegistering: (isRegistering: boolean) => void;
 };
 export default function RegisterForm({setIsRegistering}: RegisterFormProps) {
-    const {error, register} = useAuth();
+    const {register} = useAuth();
+    const [error, setError] = useState<string>('');
     const [form, setForm] = useState<{email: string; password: string; username: string}>({
         email: '',
         password: '',
         username: ''
     });
+
+    const clearForm = () => {
+        setForm({
+            email: '',
+            password: '',
+            username: ''
+        });
+        setConfirmPass('');
+    };
     const [confirmPass, setConfirmPass] = useState<string>('');
-    const [isValid, setIsValid] = useState<boolean>(true);
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const {name, value} = e.target;
         setForm((prev) => ({...prev, [name]: value}));
     };
     const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
         e.preventDefault();
+        setError('');
         if (form.password != confirmPass) {
-            setIsValid(false);
+            setError("Passwords don't match!");
+            errorToast("Passwords don't match!");
+
             return;
         }
-        await register(form);
+        try {
+            await register(form);
+            clearForm();
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                const message = error.response?.data.message ?? 'Something went wrong.';
+                setError(message);
+                errorToast(message);
+            }
+        }
     };
     //SETUP REDIRECT AFTER SUCCESSFUL REGISTER
     return (
         <div className="flex flex-col justify-start items-center border-gray-700 pr-32 bg-tertiary w-2/5 h-full p-24">
             <h1 className="text-4xl text-center font-bold">Welcome to PrismaDex!</h1>
             <h3 className="pt-4 text-xl text-center ">✨Start your Dex today!✨</h3>
+
             <form onSubmit={handleSubmit} className="pt-8 flex flex-col justify-center gap-4 w-1/2">
                 <LabelInput
                     type={'email'}
@@ -58,8 +83,13 @@ export default function RegisterForm({setIsRegistering}: RegisterFormProps) {
                     value={confirmPass}
                     label="Confirm  Password"
                 />
-                <input type="submit" value="Register Now" />
-                {error ? <p>{error}</p> : !isValid ? <p>{error}</p> : <></>}
+                {error && <p className="text-red-400 italic">{error}</p>}
+                <input
+                    type="submit"
+                    className="bg-primary p-2 rounded-3xl border-2 hover:text-black text-secondary border-black shadow-normal transition-all duration-100 ease-in hover:bg-darkprimary hover:shadow-[2px_2px_3px_gray]"
+                    value="Register Now"
+                />
+
                 <p onClick={() => setIsRegistering(false)}>Existing User?</p>
             </form>
         </div>

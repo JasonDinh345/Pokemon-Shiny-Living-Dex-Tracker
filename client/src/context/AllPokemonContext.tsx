@@ -3,6 +3,7 @@ import {Generation} from '@/types/generation';
 import {Pokemon} from '@/types/pokemon';
 import {getGeneration} from '@/util/getGeneration';
 import {getPokemon} from '@/util/getPokemon';
+import {errorToast} from '@/util/toast';
 
 import {createContext, useContext, useState, ReactNode, useEffect} from 'react';
 
@@ -44,7 +45,7 @@ export const AllPokemonProvider = ({children}: {children: ReactNode}) => {
                     if (error instanceof Error && error.message.startsWith('Unknown Generation:')) {
                         isEnd = true;
                     } else {
-                        setError('Something went wrong.');
+                        errorToast('Something went wrong!');
                     }
                 }
             }

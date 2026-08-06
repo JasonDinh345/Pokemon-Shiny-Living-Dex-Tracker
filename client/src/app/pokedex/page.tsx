@@ -13,6 +13,9 @@ export default function PokeDex() {
     const [selectedPokemon, setSelectedPokemon] = useState<Pokemon>();
     const [searchQuery, setSearchQuery] = useState<string>('');
 
+    const matchingPokemon = allPokemon.filter((pokemon) =>
+        pokemon.name.toLowerCase().startsWith(searchQuery.toLowerCase())
+    );
     return (
         <UserPokemonDataProvider>
             <div className="relative flex min-h-0 flex-1 flex-row w-full overflow-hidden bg-tertiary">
@@ -20,7 +23,7 @@ export default function PokeDex() {
                     <SearchBar value={searchQuery} setSearchQuery={setSearchQuery} />
                     <PokemonCollection
                         setSelectedPokemon={setSelectedPokemon}
-                        allPokemon={allPokemon}
+                        allPokemon={matchingPokemon}
                     />
                 </div>
                 <PokemonSideBar pokemon={selectedPokemon} />

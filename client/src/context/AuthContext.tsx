@@ -1,21 +1,22 @@
 'use client';
 
 import api from '@/lib/axios';
+import {errorToast, successToast} from '@/util/toast';
 import axios from 'axios';
+import {useRouter} from 'next/navigation';
 import React, {useState, useEffect, createContext, useContext} from 'react';
 
 type AuthContextType = {
     login: (data: {email: string; password: string}) => void;
     logout: () => void;
     user?: {email: string; username: string};
-    error: string;
+
     register: (data: {email: string; password: string; username: string}) => void;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{children: React.ReactNode}> = ({children}) => {
     const [user, setUser] = useState<{email: string; username: string}>();
-    const [error, setError] = useState<string>('');
 
     useEffect(() => {
         async function authUser() {
@@ -24,7 +25,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({children}) 
                 setUser(res.data);
             } catch (error) {
                 if (axios.isAxiosError(error) && error.response?.status === 401) {
-                    setError(`Please login again!`);
+                    errorToast(`Please login again!`);
                 } else {
                     throw error;
                 }
@@ -33,47 +34,21 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({children}) 
         authUser();
     }, []);
     const register = async (data: {email: string; password: string; username: string}) => {
-        setError('');
-        try {
-            const res = await api.post('/auth/register', data);
-            setUser(res.data);
-        } catch (error) {
-            if (axios.isAxiosError(error)) {
-                setError(error.response?.data.error);
-            } else {
-                setError(`Something went wrong!`);
-            }
-        }
+        await api.post('/auth/register', data);
+        successToast('Successfully registered user!', 'Check your email for verification!');
     };
     const login = async (data: {email: string; password: string}) => {
-        setError('');
-        try {
-            const res = await api.post('/auth/login', data);
-            setUser(res.data);
-        } catch (error) {
-            if (axios.isAxiosError(error)) {
-                setError(error.response?.data.error);
-            } else {
-                setError(`Something went wrong!`);
-            }
-        }
+        const res = await api.post('/auth/login', data);
+        setUser(res.data);
     };
 
     const logout = async () => {
-        try {
-            await api.delete('/auth/logout');
-            setUser(undefined);
-        } catch {
-            if (axios.isAxiosError(error)) {
-                setError(error.response?.data.error);
-            } else {
-                setError(`Something went wrong!`);
-            }
-        }
+        await api.delete('/auth/logout');
+        setUser(undefined);
     };
 
     return (
-        <AuthContext.Provider value={{login, logout, user, error, register}}>
+        <AuthContext.Provider value={{login, logout, user, register}}>
             {children}
         </AuthContext.Provider>
     );

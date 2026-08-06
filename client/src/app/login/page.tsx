@@ -26,7 +26,7 @@ export default function Login() {
                     borderBottomRightRadius: isRegistering ? '0rem' : '2rem'
                 }}
                 transition={{
-                    duration: 1,
+                    duration: 0.75,
                     ease: 'easeInOut'
                 }}
             />

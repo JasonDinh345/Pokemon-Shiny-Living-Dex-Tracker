@@ -6,7 +6,7 @@ import {AllPokemonProvider} from '@/context/AllPokemonContext';
 import Footer from '@/components/layout/Footer';
 import {AuthProvider} from '@/context/AuthContext';
 import PageTransition from '@/components/misc/PageTransition';
-
+import {Toaster} from 'react-hot-toast';
 import {AddPokemonForm} from '@/components/modal/AddPokemonForm';
 import {AddPokemonModelProvider} from '@/context/AddPokemonModalContext';
 
@@ -32,7 +32,9 @@ export default function RootLayout({
                         <AllPokemonProvider>
                             <main className="flex min-h-0 flex-1 overflow-hidden bg-tertiary">
                                 <PageTransition>{children}</PageTransition>
+                                <Toaster />
                             </main>
+
                             <AddPokemonForm />
                         </AllPokemonProvider>
                     </AddPokemonModelProvider>

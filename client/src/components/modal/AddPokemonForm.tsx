@@ -13,6 +13,8 @@ import {capitilize} from '@/util/captilize';
 import {games} from '@/data/games';
 import {Pokemon} from '@/types/pokemon';
 import CaughtShiny from '@/types/caught_shinies';
+import axios from 'axios';
+import {errorToast} from '@/util/toast';
 type AddPokemonFormType = {
     pokemon_name: string;
     method: string;
@@ -25,6 +27,7 @@ type AddPokemonFormType = {
 export function AddPokemonForm() {
     const {isVisible, setChosenPokemon, setIsVisible, chosenPokemon, addShiny} =
         useAddPokemonModal();
+    const [error, setError] = useState<string>('');
     const {isReady, allGen} = useAllPokemon();
     const [formData, setFormData] = useState<AddPokemonFormType>({
         pokemon_name: '',
@@ -55,6 +58,9 @@ export function AddPokemonForm() {
     };
     const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
         e.preventDefault();
+        if (!chosenPokemon) {
+            return;
+        }
         const updatedForm: Omit<CaughtShiny, 'id' | 'user_email'> = {
             ...formData,
             hunt_started: formData.hunt_started ? new Date(formData.hunt_started) : null,
@@ -62,9 +68,18 @@ export function AddPokemonForm() {
             encounters:
                 formData.encounters && Number(formData.encounters) !== 0
                     ? Number(formData?.encounters)
-                    : null
+                    : null,
+            pokemon_name: chosenPokemon.name
         };
-        await addShiny(updatedForm);
+        try {
+            await addShiny(updatedForm);
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                const message = error.response?.data.message || 'Something went wrong!';
+                setError(message);
+                errorToast(message);
+            }
+        }
     };
     return (
         <AnimatePresence>
@@ -88,7 +103,10 @@ export function AddPokemonForm() {
                                 />
                             </svg>
 
-                            <form className="relative flex flex-col gap-2 justify-center items-center">
+                            <form
+                                className="relative flex flex-col gap-2 justify-center items-center"
+                                onSubmit={handleSubmit}
+                            >
                                 <h1 className="font-bold text-2xl p-4">
                                     Add a Shiny {capitilize(chosenPokemon.name)} to your Dex:
                                 </h1>
@@ -170,6 +188,7 @@ export function AddPokemonForm() {
                                         onChange={handleChange}
                                     />
                                 </div>
+                                {!error && <p className="text-red-400 italic">{error}</p>}
                                 <input
                                     className="bg-primary w-1/3 p-2 rounded-3xl border-2 hover:text-black text-secondary border-black shadow-normal transition-all duration-100 ease-in hover:bg-darkprimary hover:shadow-[2px_2px_3px_gray]"
                                     type="submit"

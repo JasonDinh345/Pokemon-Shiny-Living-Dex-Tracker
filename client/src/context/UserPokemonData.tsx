@@ -1,6 +1,7 @@
 'use client';
 import api from '@/lib/axios';
 import CaughtShiny from '@/types/caught_shinies';
+import {errorToast} from '@/util/toast';
 
 import axios from 'axios';
 
@@ -24,9 +25,9 @@ export const UserPokemonDataProvider = ({children}: {children: ReactNode}) => {
                 setCaughtShinies(res.data);
             } catch (error) {
                 if (axios.isAxiosError(error)) {
-                    setError(error.response?.data.error);
-                } else {
-                    setError(`Something went wrong!`);
+                    const message = error.response?.data.error || 'Something went wrong!';
+                    setError(message);
+                    errorToast(message);
                 }
             }
             setIsReady(true);
