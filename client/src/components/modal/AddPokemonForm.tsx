@@ -15,6 +15,7 @@ import {Pokemon} from '@/types/pokemon';
 import CaughtShiny from '@/types/caught_shinies';
 import axios from 'axios';
 import {errorToast} from '@/util/toast';
+import {findGen} from '@/util/findGen';
 type AddPokemonFormType = {
     pokemon_name: string;
     method: string;
@@ -50,12 +51,7 @@ export function AddPokemonForm() {
         }
         setFormData((prev) => ({...prev, [name]: value}));
     };
-    const findGen = (pokemon: Pokemon) => {
-        const gen = allGen.find((gen) =>
-            gen.pokemon_species.find((pokemon1) => pokemon1.name === pokemon.name)
-        );
-        return gen?.id;
-    };
+
     const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
         e.preventDefault();
         if (!chosenPokemon) {
@@ -138,7 +134,8 @@ export function AddPokemonForm() {
                                         {games
                                             .filter(
                                                 (game) =>
-                                                    game.generation >= (findGen(chosenPokemon) || 0)
+                                                    game.generation >=
+                                                    (findGen(chosenPokemon, allGen) || 0)
                                             )
                                             .map((game) => (
                                                 <option key={game.name} value={game.name}>

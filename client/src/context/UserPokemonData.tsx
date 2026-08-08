@@ -6,6 +6,7 @@ import {errorToast} from '@/util/toast';
 import axios from 'axios';
 
 import {createContext, useContext, useState, ReactNode, useEffect} from 'react';
+import {useAuth} from './AuthContext';
 
 type UserPokemonDataContextType = {
     caughtShinies: CaughtShiny[];
@@ -17,6 +18,7 @@ export const UserPokemonDataProvider = ({children}: {children: ReactNode}) => {
     const [isReady, setIsReady] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
     const [caughtShinies, setCaughtShinies] = useState<CaughtShiny[]>([]);
+    const {user} = useAuth();
     useEffect(() => {
         setIsReady(false);
         const getData = async () => {
@@ -33,8 +35,10 @@ export const UserPokemonDataProvider = ({children}: {children: ReactNode}) => {
             setIsReady(true);
         };
 
-        getData();
-    }, []);
+        if (user) {
+            getData();
+        }
+    }, [user]);
 
     return (
         <UserPokemonDataContext.Provider value={{caughtShinies, isReady}}>
