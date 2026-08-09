@@ -14,7 +14,7 @@ import {games} from '@/data/games';
 import {Pokemon} from '@/types/pokemon';
 import CaughtShiny from '@/types/caught_shinies';
 import axios from 'axios';
-import {errorToast} from '@/util/toast';
+import {errorToast, successToast} from '@/util/toast';
 import {findGen} from '@/util/findGen';
 type AddPokemonFormType = {
     pokemon_name: string;
@@ -69,11 +69,17 @@ export function AddPokemonForm() {
         };
         try {
             await addShiny(updatedForm);
+            successToast(
+                `Successfully added ${capitilize(chosenPokemon.name)} ${formData.nickname && `(${formData.nickname})`} to your Dex!`
+            );
+            setChosenPokemon(null);
+            setIsVisible(false);
         } catch (error) {
             if (axios.isAxiosError(error)) {
                 const message = error.response?.data.message || 'Something went wrong!';
                 setError(message);
                 errorToast(message);
+                console.log(error);
             }
         }
     };

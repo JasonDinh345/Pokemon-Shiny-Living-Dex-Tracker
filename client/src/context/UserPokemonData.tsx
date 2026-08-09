@@ -24,7 +24,12 @@ export const UserPokemonDataProvider = ({children}: {children: ReactNode}) => {
         const getData = async () => {
             try {
                 const res = await api.get('/caught-shinies/all');
-                setCaughtShinies(res.data);
+                const shinies = res.data.map((shiny: CaughtShiny) => ({
+                    ...shiny,
+                    date_caught: shiny.date_caught ? new Date(shiny.date_caught) : null,
+                    hunt_started: shiny.hunt_started ? new Date(shiny.hunt_started) : null
+                }));
+                setCaughtShinies(shinies);
             } catch (error) {
                 if (axios.isAxiosError(error)) {
                     const message = error.response?.data.error || 'Something went wrong!';

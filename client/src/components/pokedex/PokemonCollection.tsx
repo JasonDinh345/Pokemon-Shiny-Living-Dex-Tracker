@@ -61,14 +61,14 @@ export default function PokemonCollection({
                         return (b.encounters || 0) - (a.encounters || 0);
                     case '5':
                         return (
-                            (a.hunt_started || new Date(0)).getTime() -
-                            (b.hunt_started || new Date(0)).getTime()
+                            (b.hunt_started || new Date(0)).getTime() -
+                            (a.hunt_started || new Date(0)).getTime()
                         );
 
                     case '6':
                         return (
-                            (b.hunt_started || new Date(0)).getTime() -
-                            (a.hunt_started || new Date(0)).getTime()
+                            (a.hunt_started || new Date(0)).getTime() -
+                            (b.hunt_started || new Date(0)).getTime()
                         );
                     default:
                         return a.id - b.id;
