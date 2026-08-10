@@ -85,9 +85,14 @@ export default function PokemonCollection({
         }
 
         return map;
-    }, [caughtShinies]);
+    }, [matchingCaughtShinies]);
 
-    const rowCount = Math.ceil(allPokemon.length / COLUMN_COUNT);
+    const displayedPokemon =
+        filterValues.orderBy && Number(filterValues.orderBy) > 2
+            ? matchingCaughtShinies
+            : allPokemon;
+
+    const rowCount = Math.ceil(displayedPokemon.length / COLUMN_COUNT);
 
     const rowVirtualizer = useVirtualizer({
         count: rowCount,
@@ -117,32 +122,30 @@ export default function PokemonCollection({
                             }}
                             className="flex gap-1"
                         >
-                            {filterValues.orderBy && Number(filterValues.orderBy) > 2
-                                ? matchingCaughtShinies
-                                      .slice(startIndex, startIndex + COLUMN_COUNT)
-                                      .map((pokemon) => (
-                                          <PokemonIcon
-                                              key={pokemon.id}
-                                              pokemon={allPokemon.find(
-                                                  (pokemon1) =>
-                                                      pokemon1.name == pokemon.pokemon_name
-                                              )}
-                                              setSelectedPokemon={setSelectedPokemon}
-                                              caughtList={
-                                                  shiniesByPokemon.get(pokemon.pokemon_name) ?? []
-                                              }
-                                          />
-                                      ))
-                                : allPokemon
-                                      .slice(startIndex, startIndex + COLUMN_COUNT)
-                                      .map((pokemon) => (
-                                          <PokemonIcon
-                                              key={pokemon.id}
-                                              pokemon={pokemon}
-                                              setSelectedPokemon={setSelectedPokemon}
-                                              caughtList={shiniesByPokemon.get(pokemon.name) ?? []}
-                                          />
-                                      ))}
+                            {displayedPokemon
+                                .slice(startIndex, startIndex + COLUMN_COUNT)
+                                .map((pokemon) => {
+                                    const pokemonData =
+                                        'pokemon_name' in pokemon
+                                            ? allPokemon.find(
+                                                  (p) => p.name === pokemon.pokemon_name
+                                              )
+                                            : pokemon;
+
+                                    const pokemonName =
+                                        'pokemon_name' in pokemon
+                                            ? pokemon.pokemon_name
+                                            : pokemon.name;
+
+                                    return (
+                                        <PokemonIcon
+                                            key={pokemon.id}
+                                            pokemon={pokemonData}
+                                            setSelectedPokemon={setSelectedPokemon}
+                                            caughtList={shiniesByPokemon.get(pokemonName) ?? []}
+                                        />
+                                    );
+                                })}
                         </div>
                     );
                 })}

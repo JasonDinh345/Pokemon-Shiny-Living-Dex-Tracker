@@ -1,5 +1,6 @@
 'use client';
 import {FilterBar} from '@/components/pokedex/FilterBar';
+import {PokeDexProgessBar} from '@/components/pokedex/PokeDexProgressBar';
 import PokemonCollection from '@/components/pokedex/PokemonCollection';
 import PokemonSideBar from '@/components/pokedex/PokemonSideBar';
 import {SearchBar} from '@/components/pokedex/SearchBar';
@@ -74,6 +75,10 @@ export default function PokeDex() {
                 <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
                     <SearchBar value={searchQuery} setSearchQuery={setSearchQuery} />
                     <FilterBar filterValues={filterValues} setFilterValues={setFilterValues} />
+                    <PokeDexProgessBar
+                        matchingPokemonLength={matchingPokemon.length}
+                        filterValues={filterValues}
+                    />
                     <PokemonCollection
                         setSelectedPokemon={setSelectedPokemon}
                         filterValues={filterValues}
