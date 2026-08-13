@@ -36,31 +36,41 @@ export function PokeDexProgessBar({filterValues, matchingPokemonLength}: PokeDex
     }, [matchingCaughtShinies]);
 
     return (
-        <div className="flex flex-row justify-center items-center h-10 gap-2 ">
+        <div className="flex flex-row justify-center items-center h-10 gap-2">
             {filterValues.gen ? (
                 <>
-                    <progress
-                        max={matchingPokemonLength}
-                        value={shiniesByPokemon.size}
-                        className="appearance-none w-2xl h-4/5 rounded-3xl overflow-hidden shadow-normal border-2 border-darkprimary bg-secondary 
+                    <div className="w-2xl h-4/5 relative">
+                        <progress
+                            max={matchingPokemonLength}
+                            value={shiniesByPokemon.size}
+                            className="appearance-none size-full rounded-3xl overflow-hidden shadow-normal border-2 border-darkprimary bg-secondary 
                         [&::-webkit-progress-bar]:bg-secondary
                         [&::-webkit-progress-value]:bg-primary
                         [&::-moz-progress-bar]:bg-primary"
-                        title={`${capitilize(allGen.find((gen) => gen.id === Number(filterValues.gen))?.main_region.name ?? '')} Shiny Living Dex Completion`}
-                    />
+                            title={`Shiny Living Dex Completion`}
+                        />
+                        <p className="absolute inset-0 flex items-center justify-center">
+                            {shiniesByPokemon.size}/{matchingPokemonLength}
+                        </p>
+                    </div>
                     <p>%{Math.ceil(shiniesByPokemon.size / matchingPokemonLength)}</p>
                 </>
             ) : (
                 <>
-                    <progress
-                        max={allPokemon.length}
-                        value={shiniesByPokemon.size}
-                        className="appearance-none w-2xl h-4/5 rounded-3xl overflow-hidden shadow-normal border-2 border-darkprimary bg-secondary 
+                    <div className="w-2xl h-4/5 relative">
+                        <progress
+                            max={allPokemon.length}
+                            value={shiniesByPokemon.size}
+                            className="appearance-none size-full rounded-3xl overflow-hidden shadow-normal border-2 border-darkprimary bg-secondary 
                         [&::-webkit-progress-bar]:bg-secondary
                         [&::-webkit-progress-value]:bg-primary
                         [&::-moz-progress-bar]:bg-primary"
-                        title={`Shiny Living Dex Completion`}
-                    />
+                            title={`Shiny Living Dex Completion`}
+                        />
+                        <p className="absolute inset-0 flex items-center justify-center">
+                            {shiniesByPokemon.size}/{allPokemon.length}
+                        </p>
+                    </div>
                     <p>%{Math.ceil(shiniesByPokemon.size / allPokemon.length)}</p>
                 </>
             )}

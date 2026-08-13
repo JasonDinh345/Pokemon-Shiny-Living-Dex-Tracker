@@ -72,12 +72,14 @@ export default function PokeDex() {
     return (
         <div className="relative flex min-h-0 flex-1 flex-row w-full overflow-hidden bg-tertiary">
             <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-                <SearchBar value={searchQuery} setSearchQuery={setSearchQuery} />
-                <FilterBar filterValues={filterValues} setFilterValues={setFilterValues} />
-                <PokeDexProgessBar
-                    matchingPokemonLength={matchingPokemon.length}
-                    filterValues={filterValues}
-                />
+                <div className="flex flex-col justify-center items-center m-2">
+                    <SearchBar value={searchQuery} setSearchQuery={setSearchQuery} />
+                    <FilterBar filterValues={filterValues} setFilterValues={setFilterValues} />
+                    <PokeDexProgessBar
+                        matchingPokemonLength={matchingPokemon.length}
+                        filterValues={filterValues}
+                    />
+                </div>
                 <PokemonCollection
                     setSelectedPokemon={setSelectedPokemon}
                     filterValues={filterValues}
