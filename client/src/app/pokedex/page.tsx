@@ -70,23 +70,21 @@ export default function PokeDex() {
     }, [allPokemon, searchQuery, filterValues]);
 
     return (
-        <UserPokemonDataProvider>
-            <div className="relative flex min-h-0 flex-1 flex-row w-full overflow-hidden bg-tertiary">
-                <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-                    <SearchBar value={searchQuery} setSearchQuery={setSearchQuery} />
-                    <FilterBar filterValues={filterValues} setFilterValues={setFilterValues} />
-                    <PokeDexProgessBar
-                        matchingPokemonLength={matchingPokemon.length}
-                        filterValues={filterValues}
-                    />
-                    <PokemonCollection
-                        setSelectedPokemon={setSelectedPokemon}
-                        filterValues={filterValues}
-                        allPokemon={matchingPokemon}
-                    />
-                </div>
-                <PokemonSideBar pokemon={selectedPokemon} />
+        <div className="relative flex min-h-0 flex-1 flex-row w-full overflow-hidden bg-tertiary">
+            <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+                <SearchBar value={searchQuery} setSearchQuery={setSearchQuery} />
+                <FilterBar filterValues={filterValues} setFilterValues={setFilterValues} />
+                <PokeDexProgessBar
+                    matchingPokemonLength={matchingPokemon.length}
+                    filterValues={filterValues}
+                />
+                <PokemonCollection
+                    setSelectedPokemon={setSelectedPokemon}
+                    filterValues={filterValues}
+                    allPokemon={matchingPokemon}
+                />
             </div>
-        </UserPokemonDataProvider>
+            <PokemonSideBar pokemon={selectedPokemon} />
+        </div>
     );
 }

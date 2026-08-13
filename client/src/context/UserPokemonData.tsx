@@ -11,6 +11,7 @@ import {useAuth} from './AuthContext';
 type UserPokemonDataContextType = {
     caughtShinies: CaughtShiny[];
     isReady: boolean;
+    addToShiny: (pokemon: CaughtShiny) => void;
 };
 const UserPokemonDataContext = createContext<UserPokemonDataContextType | undefined>(undefined);
 
@@ -44,9 +45,18 @@ export const UserPokemonDataProvider = ({children}: {children: ReactNode}) => {
             getData();
         }
     }, [user]);
-
+    const addToShiny = (pokemon: CaughtShiny) => {
+        setCaughtShinies((prev) => [
+            ...prev,
+            {
+                ...pokemon,
+                date_caught: pokemon.date_caught ? new Date(pokemon.date_caught) : null,
+                hunt_started: pokemon.hunt_started ? new Date(pokemon.hunt_started) : null
+            }
+        ]);
+    };
     return (
-        <UserPokemonDataContext.Provider value={{caughtShinies, isReady}}>
+        <UserPokemonDataContext.Provider value={{caughtShinies, isReady, addToShiny}}>
             {children}
         </UserPokemonDataContext.Provider>
     );

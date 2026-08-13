@@ -16,6 +16,7 @@ import CaughtShiny from '@/types/caught_shinies';
 import axios from 'axios';
 import {errorToast, successToast} from '@/util/toast';
 import {findGen} from '@/util/findGen';
+import {useUserPokemonData} from '@/context/UserPokemonData';
 type AddPokemonFormType = {
     pokemon_name: string;
     method: string;
@@ -30,6 +31,7 @@ export function AddPokemonForm() {
         useAddPokemonModal();
     const [error, setError] = useState<string>('');
     const {isReady, allGen} = useAllPokemon();
+    const {addToShiny} = useUserPokemonData();
     const [formData, setFormData] = useState<AddPokemonFormType>({
         pokemon_name: '',
         method: '',
@@ -68,7 +70,8 @@ export function AddPokemonForm() {
             pokemon_name: chosenPokemon.name
         };
         try {
-            await addShiny(updatedForm);
+            const shiny = await addShiny(updatedForm);
+            addToShiny(shiny);
             successToast(
                 `Successfully added ${capitilize(chosenPokemon.name)} ${formData.nickname && `(${formData.nickname})`} to your Dex!`
             );

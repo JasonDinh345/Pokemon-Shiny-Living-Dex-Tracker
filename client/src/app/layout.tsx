@@ -9,6 +9,7 @@ import PageTransition from '@/components/misc/PageTransition';
 import {Toaster} from 'react-hot-toast';
 import {AddPokemonForm} from '@/components/modal/AddPokemonForm';
 import {AddPokemonModelProvider} from '@/context/AddPokemonModalContext';
+import {UserPokemonDataProvider} from '@/context/UserPokemonData';
 
 const sora = Sora({subsets: ['latin'], weight: ['400', '700']});
 
@@ -26,18 +27,20 @@ export default function RootLayout({
         <html lang="en" className={`${sora.className} h-full antialiased `}>
             <body className="flex h-screen flex-col overflow-hidden bg-tertiary">
                 <AuthProvider>
-                    <AddPokemonModelProvider>
-                        <NavBar />
+                    <UserPokemonDataProvider>
+                        <AddPokemonModelProvider>
+                            <NavBar />
 
-                        <AllPokemonProvider>
-                            <main className="flex min-h-0 flex-1 overflow-hidden bg-tertiary">
-                                <PageTransition>{children}</PageTransition>
-                                <Toaster />
-                            </main>
+                            <AllPokemonProvider>
+                                <main className="flex min-h-0 flex-1 overflow-hidden bg-tertiary">
+                                    <PageTransition>{children}</PageTransition>
+                                    <Toaster />
+                                </main>
 
-                            <AddPokemonForm />
-                        </AllPokemonProvider>
-                    </AddPokemonModelProvider>
+                                <AddPokemonForm />
+                            </AllPokemonProvider>
+                        </AddPokemonModelProvider>
+                    </UserPokemonDataProvider>
                     <Footer />
                 </AuthProvider>
             </body>
