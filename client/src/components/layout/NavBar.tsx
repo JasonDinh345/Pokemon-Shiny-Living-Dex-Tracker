@@ -2,13 +2,16 @@
 import {useAddPokemonModal} from '@/context/AddPokemonModalContext';
 import {useAuth} from '@/context/AuthContext';
 import Link from 'next/link';
-
+import Image from 'next/image';
 export default function NavBar() {
     const {user} = useAuth();
     const {setIsVisible} = useAddPokemonModal();
     return (
-        <nav className="flex flex-row font-bold gap-2 border-b-gray-400 border-b-2 bg-seconday p-4">
-            <Link href="/">Home </Link> |
+        <nav className="flex flex-row font-bold gap-2 border-b-gray-400 border-b-2 bg-seconday p-4 items-center text-xl">
+            <Link href="/" className="flex flex-row justify-center items-center gap-2">
+                <Image alt="shiny zygarde" width={35} height={35} src={'/zygarde.svg'} /> PrismaDex
+            </Link>{' '}
+            |
             {user && (
                 <>
                     <Link href="/pokedex">PokeDex</Link> |

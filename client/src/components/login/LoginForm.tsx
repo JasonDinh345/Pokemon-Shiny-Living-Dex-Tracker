@@ -4,7 +4,7 @@ import {errorToast} from '@/util/toast';
 import axios from 'axios';
 import {useRouter} from 'next/navigation';
 import {useState} from 'react';
-
+import Image from 'next/image';
 type LoginFormProps = {
     setIsRegistering: (isRegistering: boolean) => void;
 };
@@ -40,7 +40,7 @@ export default function LoginForm({setIsRegistering}: LoginFormProps) {
         <div
             className={`flex flex-col justify-start items-center border-gray-700 pr-32 bg-tertiary w-2/5 h-full p-24`}
         >
-            <h1 className="text-4xl text-center font-bold">PrismaDex</h1>
+            <h1 className="text-4xl text-center font-bold"> PrismaDex</h1>
             <h3 className="pt-4 text-xl text-center ">✨Welcome back!✨</h3>
             <form onSubmit={handleSubmit} className="pt-8 flex flex-col justify-center gap-4 w-1/2">
                 <LabelInput
