@@ -5,11 +5,11 @@ import {orderByValues} from '@/data/filterValues';
 import {Dispatch, SetStateAction, useState} from 'react';
 import {Select} from '../ui/Select';
 import {games} from '@/data/games';
-import {ToggleButton} from '../ui/ToggleButton';
-import {FilterValueType} from '@/app/pokedex/page';
+import {FilterValues} from '@/types/filterValues';
+
 type FilterBarProps = {
-    filterValues: FilterValueType;
-    setFilterValues: Dispatch<SetStateAction<FilterValueType>>;
+    filterValues: FilterValues;
+    setFilterValues: Dispatch<SetStateAction<FilterValues>>;
 };
 export function FilterBar({filterValues, setFilterValues}: FilterBarProps) {
     const {allGen} = useAllPokemon();

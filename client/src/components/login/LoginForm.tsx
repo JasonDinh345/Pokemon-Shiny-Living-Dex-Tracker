@@ -1,3 +1,4 @@
+'use client';
 import {LabelInput} from '@/components/ui/LabelInput';
 import {useAuth} from '@/context/AuthContext';
 import {errorToast} from '@/util/toast';

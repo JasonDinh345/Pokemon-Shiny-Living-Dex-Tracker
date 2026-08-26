@@ -8,6 +8,7 @@ import {formatDate} from '@/util/formatDate';
 import {getPokemonImageSrc} from '@/util/getPokemonImageSrc';
 import Image from 'next/image';
 import {useMemo, useState} from 'react';
+import {ShinyInfo} from '../ui/ShinyInfo';
 type PokemonSideBarType = {
     pokemon?: Pokemon;
 };
@@ -23,7 +24,7 @@ export default function PokemonSideBar({pokemon}: PokemonSideBarType) {
         setIsVisible(true);
     };
     return (
-        <div className="flex w-1/5 shrink-0 flex-col items-center overflow-hidden border-2 border-l-primary border-secondary bg-secondary">
+        <div className="flex w-1/5 shrink-0 flex-col items-center overflow-hidden border-2 border-l-primary border-secondary bg-secondary gap-2">
             {pokemon ? (
                 <>
                     <Image
@@ -31,6 +32,7 @@ export default function PokemonSideBar({pokemon}: PokemonSideBarType) {
                         alt={`Shiny ${pokemon.name}`}
                         width={200}
                         height={200}
+                        className="bg-tertiary p-2 rounded-2xl shadow-normal ring-2 ring-primary mt-2"
                     />
                     <div className=" flex flex-col gap-2 justify-center items-center">
                         {' '}
@@ -88,18 +90,6 @@ export default function PokemonSideBar({pokemon}: PokemonSideBarType) {
             ) : (
                 <p>No Shiny Selected!</p>
             )}
-        </div>
-    );
-}
-type ShinyInfoProp = {
-    label: string;
-    value: string | number;
-};
-function ShinyInfo({label, value}: ShinyInfoProp) {
-    return (
-        <div>
-            <p className="text-primary text-lg font-bold">{label}:</p>
-            <p className="text-black">{value}</p>
         </div>
     );
 }

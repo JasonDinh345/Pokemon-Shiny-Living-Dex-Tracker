@@ -1,13 +1,13 @@
-import {FilterValueType} from '@/app/pokedex/page';
 import {useAllPokemon} from '@/context/AllPokemonContext';
 import {useUserPokemonData} from '@/context/UserPokemonData';
 import CaughtShiny from '@/types/caught_shinies';
+import {FilterValues} from '@/types/filterValues';
 import {capitilize} from '@/util/captilize';
 import {findGen} from '@/util/findGen';
 import {useMemo} from 'react';
 
 type PokeDexProgessBarProps = {
-    filterValues: FilterValueType;
+    filterValues: FilterValues;
     matchingPokemonLength: number;
 };
 export function PokeDexProgessBar({filterValues, matchingPokemonLength}: PokeDexProgessBarProps) {
