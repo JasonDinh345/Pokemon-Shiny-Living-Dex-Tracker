@@ -18,7 +18,6 @@ import {useEffect, useMemo, useState} from 'react';
 export function PokeDexClient() {
     const router = useRouter();
     const {allPokemon, allGen, isReady} = useAllPokemon();
-    const [selectedPokemon, setSelectedPokemon] = useState<Pokemon>();
     const [searchQuery, setSearchQuery] = useState<string>('');
     const [filterValues, setFilterValues] = useState<FilterValues>({
         orderBy: '',
@@ -36,7 +35,6 @@ export function PokeDexClient() {
             router.replace('/login');
         }
     }, [user, isReady]);
-    console.log(user);
     const matchingPokemon = useMemo(() => {
         return allPokemon
             .filter((pokemon) => {
@@ -82,13 +80,9 @@ export function PokeDexClient() {
                         filterValues={filterValues}
                     />
                 </div>
-                <PokemonCollection
-                    setSelectedPokemon={setSelectedPokemon}
-                    filterValues={filterValues}
-                    allPokemon={matchingPokemon}
-                />
+                <PokemonCollection filterValues={filterValues} allPokemon={matchingPokemon} />
             </div>
-            <PokemonSideBar pokemon={selectedPokemon} />
+            <PokemonSideBar />
         </div>
     );
 }

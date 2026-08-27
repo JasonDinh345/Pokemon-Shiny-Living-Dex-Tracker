@@ -7,12 +7,26 @@ import {capitilize} from '@/util/captilize';
 import {formatDate} from '@/util/formatDate';
 import {getPokemonImageSrc} from '@/util/getPokemonImageSrc';
 import Image from 'next/image';
-import {useMemo, useState} from 'react';
+import {useEffect, useMemo, useState} from 'react';
 import {ShinyInfo} from '../ui/ShinyInfo';
-type PokemonSideBarType = {
-    pokemon?: Pokemon;
-};
-export default function PokemonSideBar({pokemon}: PokemonSideBarType) {
+import {useSearchParams} from 'next/navigation';
+
+import {useAllPokemon} from '@/context/AllPokemonContext';
+import next from 'next';
+export default function PokemonSideBar() {
+    const [pokemonIndex, setPokemonIndex] = useState<number>(-1);
+    const {allPokemon} = useAllPokemon();
+    const searchParams = useSearchParams();
+
+    const pokemonName = searchParams.get('pokemon');
+
+    useEffect(() => {
+        const index = allPokemon.findIndex((pokemon) => pokemon.name === pokemonName);
+        setPokemonIndex(index);
+    }, [pokemonName, allPokemon]);
+    const pokemon: Pokemon = allPokemon[pokemonIndex];
+    const previousPokemon = allPokemon[pokemonIndex - 1];
+    const nextPokemon = allPokemon[pokemonIndex + 1];
     const {caughtShinies} = useUserPokemonData();
     const {setChosenPokemon, setIsVisible} = useAddPokemonModal();
     const [currentIndex, setCurrentIndex] = useState(0);
@@ -84,6 +98,88 @@ export default function PokemonSideBar({pokemon}: PokemonSideBarType) {
                             >
                                 Mark as Hunted?
                             </button>
+                        </div>
+                    )}
+                    {pokemonIndex !== -1 && (
+                        <div className="flex-1 flex items-end justify-between w-full p-2">
+                            <div
+                                className={`flex flex-row items-center justify-center  ${!previousPokemon ? 'text-stone-400 cursor-default' : 'cursor-pointer'}`}
+                                onClick={
+                                    previousPokemon
+                                        ? () =>
+                                              window.history.replaceState(
+                                                  null,
+                                                  '',
+                                                  `/pokedex?pokemon=${previousPokemon.name}`
+                                              )
+                                        : undefined
+                                }
+                            >
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    strokeWidth={1.5}
+                                    stroke="currentColor"
+                                    className="size-6"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        d="M15.75 19.5 8.25 12l7.5-7.5"
+                                    />
+                                </svg>
+                                <p>PREV</p>
+                                <div className="size-12.5">
+                                    {previousPokemon ? (
+                                        <Image
+                                            src={getPokemonImageSrc(previousPokemon.id)}
+                                            alt={`Shiny ${previousPokemon.name}`}
+                                            width={50}
+                                            height={50}
+                                        />
+                                    ) : null}
+                                </div>
+                            </div>
+                            <div
+                                className={`flex flex-row items-center justify-center  ${!nextPokemon ? 'text-stone-400 cursor-default' : 'cursor-pointer'}`}
+                                onClick={
+                                    nextPokemon
+                                        ? () =>
+                                              window.history.replaceState(
+                                                  null,
+                                                  '',
+                                                  `/pokedex?pokemon=${nextPokemon.name}`
+                                              )
+                                        : undefined
+                                }
+                            >
+                                <div className="size-12.5">
+                                    {nextPokemon ? (
+                                        <Image
+                                            src={getPokemonImageSrc(nextPokemon.id)}
+                                            alt={`Shiny ${nextPokemon.name}`}
+                                            width={50}
+                                            height={50}
+                                        />
+                                    ) : null}
+                                </div>
+                                <p>NEXT</p>
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    strokeWidth={1.5}
+                                    stroke="currentColor"
+                                    className="size-6"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        d="m8.25 4.5 7.5 7.5-7.5 7.5"
+                                    />
+                                </svg>
+                            </div>
                         </div>
                     )}
                 </>

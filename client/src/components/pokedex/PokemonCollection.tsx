@@ -6,19 +6,14 @@ import CaughtShiny from '@/types/caught_shinies';
 import {useMemo, useRef} from 'react';
 import {useVirtualizer} from '@tanstack/react-virtual';
 import {PokemonIcon} from './PokemonIcon';
-import {FilterValueType} from '@/app/pokedex/page';
+import {FilterValues} from '@/types/filterValues';
 
 type PokemonCollectionType = {
-    setSelectedPokemon: (pokemon: Pokemon) => void;
     allPokemon: Pokemon[];
-    filterValues: FilterValueType;
+    filterValues: FilterValues;
 };
 
-export default function PokemonCollection({
-    setSelectedPokemon,
-    allPokemon,
-    filterValues
-}: PokemonCollectionType) {
+export default function PokemonCollection({allPokemon, filterValues}: PokemonCollectionType) {
     const {caughtShinies} = useUserPokemonData();
     const parentRef = useRef<HTMLDivElement>(null);
 
@@ -61,14 +56,14 @@ export default function PokemonCollection({
                         return (b.encounters || 0) - (a.encounters || 0);
                     case '5':
                         return (
-                            (b.hunt_started || new Date(0)).getTime() -
-                            (a.hunt_started || new Date(0)).getTime()
+                            (b.date_caught || new Date(0)).getTime() -
+                            (a.date_caught || new Date(0)).getTime()
                         );
 
                     case '6':
                         return (
-                            (a.hunt_started || new Date(0)).getTime() -
-                            (b.hunt_started || new Date(0)).getTime()
+                            (a.date_caught || new Date(0)).getTime() -
+                            (b.date_caught || new Date(0)).getTime()
                         );
                     default:
                         return a.id - b.id;
@@ -141,7 +136,6 @@ export default function PokemonCollection({
                                         <PokemonIcon
                                             key={pokemon.id}
                                             pokemon={pokemonData}
-                                            setSelectedPokemon={setSelectedPokemon}
                                             caughtList={shiniesByPokemon.get(pokemonName) ?? []}
                                         />
                                     );

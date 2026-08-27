@@ -3,16 +3,15 @@ import {Pokemon} from '@/types/pokemon';
 import {getPokemonImageSrc} from '@/util/getPokemonImageSrc';
 import Image from 'next/image';
 import React from 'react';
+
 type PokemonIconType = {
     pokemon?: Pokemon;
-    setSelectedPokemon: (pokemon: Pokemon) => void;
     caughtList: CaughtShiny[];
 };
-export const PokemonIcon = React.memo(function PokemonIcon({
-    pokemon,
-    setSelectedPokemon,
-    caughtList
-}: PokemonIconType) {
+export const PokemonIcon = React.memo(function PokemonIcon({pokemon, caughtList}: PokemonIconType) {
+    const handleClick = () => {
+        window.history.replaceState(null, '', `/pokedex?pokemon=${pokemon?.name}`);
+    };
     return (
         pokemon && (
             <div
@@ -24,7 +23,7 @@ export const PokemonIcon = React.memo(function PokemonIcon({
                     </div>
                 )}
                 <Image
-                    onClick={() => setSelectedPokemon(pokemon)}
+                    onClick={handleClick}
                     key={pokemon.id}
                     width={100}
                     height={100}
