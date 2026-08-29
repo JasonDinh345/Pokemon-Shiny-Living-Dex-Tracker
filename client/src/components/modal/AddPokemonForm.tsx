@@ -11,70 +11,47 @@ import {getPokemonImageSrc} from '@/util/getPokemonImageSrc';
 import {LabelInput, LabelSelect} from '../ui/LabelInput';
 import {capitilize} from '@/util/captilize';
 import {games} from '@/data/games';
-import {Pokemon} from '@/types/pokemon';
-import CaughtShiny from '@/types/caught_shinies';
 import axios from 'axios';
 import {errorToast, successToast} from '@/util/toast';
 import {findGen} from '@/util/findGen';
 import {useUserPokemonData} from '@/context/UserPokemonData';
-type AddPokemonFormType = {
-    pokemon_name: string;
-    method: string;
-    nickname: string | null;
-    hunt_started: string | null;
-    date_caught: string | null;
-    encounters: number | null;
-    game: string;
-};
+
 export function AddPokemonForm() {
-    const {isVisible, setChosenPokemon, setIsVisible, chosenPokemon, addShiny} =
-        useAddPokemonModal();
+    const {
+        isVisible,
+        setChosenPokemon,
+        setIsVisible,
+        chosenPokemon,
+        formData,
+        handleChange,
+        reset,
+        editingShinyID
+    } = useAddPokemonModal();
     const [error, setError] = useState<string>('');
     const {isReady, allGen} = useAllPokemon();
-    const {addToShiny} = useUserPokemonData();
-    const [formData, setFormData] = useState<AddPokemonFormType>({
-        pokemon_name: '',
-        method: '',
-        nickname: '',
-        hunt_started: null,
-        date_caught: null,
-        encounters: null,
-        game: ''
-    });
+    const {addShiny, editShiny} = useUserPokemonData();
     const handleExit = () => {
-        setChosenPokemon(null);
+        reset();
         setIsVisible(false);
     };
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        const {name, value} = e.target;
-        if (name === 'encounters') {
-            setFormData((prev) => ({...prev, [name]: Number(value)}));
-            return;
-        }
-        setFormData((prev) => ({...prev, [name]: value}));
-    };
-
     const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
         e.preventDefault();
         if (!chosenPokemon) {
             return;
         }
-        const updatedForm: Omit<CaughtShiny, 'id' | 'user_email'> = {
-            ...formData,
-            hunt_started: formData.hunt_started ? new Date(formData.hunt_started) : null,
-            date_caught: formData.date_caught ? new Date(formData.date_caught) : null,
-            encounters:
-                formData.encounters && Number(formData.encounters) !== 0
-                    ? Number(formData?.encounters)
-                    : null,
-            pokemon_name: chosenPokemon.name
-        };
         try {
-            const shiny = await addShiny(updatedForm);
-            addToShiny(shiny);
-            successToast(
-                `Successfully added ${capitilize(chosenPokemon.name)} ${formData.nickname && `(${formData.nickname})`} to your Dex!`
-            );
+            if (editingShinyID !== undefined) {
+                await editShiny(formData, editingShinyID);
+                successToast(
+                    `Saved changes to your Shiny ${capitilize(chosenPokemon.name)} ${formData.nickname && `(${formData.nickname})`}!`
+                );
+            } else {
+                await addShiny(formData, chosenPokemon.name);
+
+                successToast(
+                    `Successfully added ${capitilize(chosenPokemon.name)} ${formData.nickname && `(${formData.nickname})`} to your Dex!`
+                );
+            }
             setChosenPokemon(null);
             setIsVisible(false);
         } catch (error) {
@@ -99,7 +76,7 @@ export function AddPokemonForm() {
                                 strokeWidth={3}
                                 stroke="currentColor"
                                 className="size-6 text-primary hover:text-black duration-100 ease-in absolute top-2 left-2"
-                                onClick={() => setChosenPokemon(null)}
+                                onClick={reset}
                             >
                                 <path
                                     strokeLinecap="round"
@@ -113,7 +90,9 @@ export function AddPokemonForm() {
                                 onSubmit={handleSubmit}
                             >
                                 <h1 className="font-bold text-2xl p-4">
-                                    Add a Shiny {capitilize(chosenPokemon.name)} to your Dex:
+                                    {editingShinyID !== undefined
+                                        ? `Edit Your Shiny ${capitilize(chosenPokemon.name)}:`
+                                        : `Add a Shiny ${capitilize(chosenPokemon.name)} to your Dex:`}
                                 </h1>
                                 <div className="flex flex-col justify-center items-center gap-2">
                                     <Image
@@ -198,7 +177,7 @@ export function AddPokemonForm() {
                                 <input
                                     className="bg-primary w-1/3 p-2 rounded-3xl border-2 hover:text-black text-secondary border-black shadow-normal transition-all duration-100 ease-in hover:bg-darkprimary hover:shadow-[2px_2px_3px_gray]"
                                     type="submit"
-                                    value="Add to Dex"
+                                    value={editingShinyID !== undefined ? 'Save' : 'Add to Dex'}
                                 />
                             </form>
                         </>
