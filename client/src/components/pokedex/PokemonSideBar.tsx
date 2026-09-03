@@ -13,14 +13,14 @@ import {useSearchParams} from 'next/navigation';
 
 import {useAllPokemon} from '@/context/AllPokemonContext';
 
-import {AddPokemonForm} from '../modal/AddPokemonForm';
+import {DupeShinySelector} from './DupeShinySelector';
 export default function PokemonSideBar() {
     const [pokemonIndex, setPokemonIndex] = useState<number>(-1);
     const {allPokemon} = useAllPokemon();
     const searchParams = useSearchParams();
 
     const pokemonName = searchParams.get('pokemon');
-
+    const shinyIndex: number = Number(searchParams.get('number')) || 0;
     useEffect(() => {
         const index = allPokemon.findIndex((pokemon) => pokemon.name === pokemonName);
         setPokemonIndex(index);
@@ -30,7 +30,7 @@ export default function PokemonSideBar() {
     const nextPokemon = allPokemon[pokemonIndex + 1];
     const {caughtShinies} = useUserPokemonData();
     const {setChosenPokemon, setIsVisible, setToEditing} = useAddPokemonModal();
-    const [currentIndex, setCurrentIndex] = useState(0);
+
     const shinies = useMemo(() => {
         return pokemon ? caughtShinies.filter((shiny) => shiny.pokemon_name === pokemon.name) : [];
     }, [caughtShinies, pokemon]);
@@ -39,7 +39,7 @@ export default function PokemonSideBar() {
         setIsVisible(true);
     };
     const handleEdit = () => {
-        setToEditing(shinies[currentIndex]);
+        setToEditing(shinies[shinyIndex]);
         setChosenPokemon(pokemon || null);
     };
     return (
@@ -66,13 +66,16 @@ export default function PokemonSideBar() {
                                 </h1>
                             </div>
                             <h2 className="text-xl font-normal">
-                                {shinies[currentIndex]?.nickname
-                                    ? shinies[currentIndex].nickname
-                                    : ''}
+                                {shinies[shinyIndex]?.nickname ? shinies[shinyIndex].nickname : ''}
                             </h2>
                         </div>
                         {shinies.length > 0 ? (
                             <>
+                                {shinies.length > 1 && (
+                                    <>
+                                        <DupeShinySelector shinies={shinies} />
+                                    </>
+                                )}
                                 <div className="bg-tertiary rounded-4xl p-4 shadow-normal border-2 border-primary w-4/5 mt-2 flex flex-col gap-2 relative">
                                     <svg
                                         xmlns="http://www.w3.org/2000/svg"
@@ -92,29 +95,26 @@ export default function PokemonSideBar() {
                                     <h2 className="text-2xl text-center underline font-bold">
                                         Hunt Info
                                     </h2>
-                                    <ShinyInfo label="Game" value={shinies[currentIndex].game} />
+                                    <ShinyInfo label="Game" value={shinies[shinyIndex].game} />
 
-                                    <ShinyInfo
-                                        label="Method"
-                                        value={shinies[currentIndex].method}
-                                    />
-                                    {shinies[currentIndex].encounters && (
+                                    <ShinyInfo label="Method" value={shinies[shinyIndex].method} />
+                                    {shinies[shinyIndex].encounters && (
                                         <ShinyInfo
                                             label="Encounters"
-                                            value={shinies[currentIndex].encounters}
+                                            value={shinies[shinyIndex].encounters}
                                         />
                                     )}
 
-                                    {shinies[currentIndex].hunt_started && (
+                                    {shinies[shinyIndex].hunt_started && (
                                         <ShinyInfo
                                             label="Hunt Started"
-                                            value={formatDate(shinies[currentIndex].hunt_started)}
+                                            value={formatDate(shinies[shinyIndex].hunt_started)}
                                         />
                                     )}
-                                    {shinies[currentIndex].date_caught && (
+                                    {shinies[shinyIndex].date_caught && (
                                         <ShinyInfo
                                             label="Date Caught"
-                                            value={formatDate(shinies[currentIndex].date_caught)}
+                                            value={formatDate(shinies[shinyIndex].date_caught)}
                                         />
                                     )}
                                 </div>
