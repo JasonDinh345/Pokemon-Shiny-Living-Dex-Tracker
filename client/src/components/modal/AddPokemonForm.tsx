@@ -15,7 +15,7 @@ import axios from 'axios';
 import {errorToast, successToast} from '@/util/toast';
 import {findGen} from '@/util/findGen';
 import {useUserPokemonData} from '@/context/UserPokemonData';
-
+import {useSearchParams} from 'next/navigation';
 export function AddPokemonForm() {
     const {
         isVisible,
@@ -27,9 +27,10 @@ export function AddPokemonForm() {
         reset,
         editingShinyID
     } = useAddPokemonModal();
+    const searchParams = useSearchParams();
     const [error, setError] = useState<string>('');
     const {isReady, allGen} = useAllPokemon();
-    const {addShiny, editShiny} = useUserPokemonData();
+    const {addShiny, editShiny, deleteShiny} = useUserPokemonData();
     const handleExit = () => {
         reset();
         setIsVisible(false);
@@ -63,6 +64,31 @@ export function AddPokemonForm() {
             }
         }
     };
+    const handleDelete = async () => {
+        if (!chosenPokemon) {
+            return;
+        }
+        try {
+            if (editingShinyID !== undefined) {
+                await deleteShiny(editingShinyID);
+                successToast(
+                    `Deleted your Shiny ${capitilize(chosenPokemon.name)} ${formData.nickname && `(${formData.nickname})`}!`
+                );
+            }
+            setChosenPokemon(null);
+            setIsVisible(false);
+            const pokemonName = searchParams.get('pokemon');
+            window.history.replaceState(null, '', `/pokedex?pokemon=${pokemonName}`);
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                const message = error.response?.data.message || 'Something went wrong!';
+                setError(message);
+                errorToast(message);
+                console.log(error);
+            }
+        }
+    };
+
     return (
         <AnimatePresence>
             {isVisible && (
@@ -174,11 +200,22 @@ export function AddPokemonForm() {
                                     />
                                 </div>
                                 {!error && <p className="text-red-400 italic">{error}</p>}
-                                <input
-                                    className="bg-primary w-1/3 p-2 rounded-3xl border-2 hover:text-black text-secondary border-black shadow-normal transition-all duration-100 ease-in hover:bg-darkprimary hover:shadow-[2px_2px_3px_gray]"
-                                    type="submit"
-                                    value={editingShinyID !== undefined ? 'Save' : 'Add to Dex'}
-                                />
+                                <div className="flex flex-row w-full justify-center items-center gap-2">
+                                    <input
+                                        className="bg-primary w-1/3 p-2 rounded-3xl border-2 hover:text-black text-secondary border-black shadow-normal transition-all duration-100 ease-in hover:bg-darkprimary hover:shadow-[2px_2px_3px_gray]"
+                                        type="submit"
+                                        value={editingShinyID !== undefined ? 'Save' : 'Add to Dex'}
+                                    />
+                                    {editingShinyID && (
+                                        <button
+                                            className="bg-red-400 w-1/3 p-2 rounded-3xl border-2 hover:text-black text-secondary border-black shadow-normal transition-all duration-100 ease-in hover:bg-red-500 hover:shadow-[2px_2px_3px_gray]"
+                                            onClick={handleDelete}
+                                            type="button"
+                                        >
+                                            Delete
+                                        </button>
+                                    )}
+                                </div>
                             </form>
                         </>
                     ) : (

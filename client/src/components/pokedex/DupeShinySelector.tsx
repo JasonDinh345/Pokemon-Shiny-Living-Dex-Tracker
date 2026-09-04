@@ -48,22 +48,35 @@ export function DupeShinySelector({shinies}: DupeShinySelectorProps) {
                 />
             </svg>
 
-            <div
-                className="overflow-hidden"
-                style={{
-                    width: `${visibleDots * dotSpacing}px`
-                }}
-            >
-                <motion.div
-                    className="flex items-center gap-2"
-                    animate={{
-                        x: -(offset * dotSpacing)
-                    }}
-                    transition={{
-                        duration: 0.3,
-                        ease: 'easeInOut'
+            {shinies.length > 5 ? (
+                <div
+                    className="overflow-hidden"
+                    style={{
+                        width: `${visibleDots * dotSpacing}px`
                     }}
                 >
+                    <motion.div
+                        className="flex items-center gap-2"
+                        animate={{
+                            x: -(offset * dotSpacing)
+                        }}
+                        transition={{
+                            duration: 0.3,
+                            ease: 'easeInOut'
+                        }}
+                    >
+                        {shinies.map((shiny, key) => (
+                            <div
+                                key={key}
+                                className={`size-3 shrink-0 rounded-full transition-colors duration-100 ease-in ${
+                                    shinyIndex === key ? 'bg-primary' : 'bg-stone-400'
+                                }`}
+                            />
+                        ))}
+                    </motion.div>
+                </div>
+            ) : (
+                <div className=" flex flex-row justify-center items-center gap-2">
                     {shinies.map((shiny, key) => (
                         <div
                             key={key}
@@ -72,9 +85,8 @@ export function DupeShinySelector({shinies}: DupeShinySelectorProps) {
                             }`}
                         />
                     ))}
-                </motion.div>
-            </div>
-
+                </div>
+            )}
             <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"

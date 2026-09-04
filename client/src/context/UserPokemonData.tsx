@@ -13,6 +13,7 @@ type UserPokemonDataContextType = {
     isReady: boolean;
     addShiny: (formData: AddPokemonForm, pokemon_name: string) => void;
     editShiny: (formData: AddPokemonForm, id: number) => void;
+    deleteShiny: (id: number) => void;
 };
 const UserPokemonDataContext = createContext<UserPokemonDataContextType | undefined>(undefined);
 
@@ -95,8 +96,16 @@ export const UserPokemonDataProvider = ({children}: {children: ReactNode}) => {
         );
         setCaughtShinies(updatedShinies);
     };
+    const deleteShiny = async (id: number) => {
+        await api.delete(`/caught-shinies/${id}`);
+
+        const updatedShinies = caughtShinies.filter((shiny) => shiny.id !== id);
+        setCaughtShinies(updatedShinies);
+    };
     return (
-        <UserPokemonDataContext.Provider value={{caughtShinies, isReady, addShiny, editShiny}}>
+        <UserPokemonDataContext.Provider
+            value={{caughtShinies, isReady, addShiny, editShiny, deleteShiny}}
+        >
             {children}
         </UserPokemonDataContext.Provider>
     );

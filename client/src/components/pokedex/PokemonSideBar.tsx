@@ -34,6 +34,7 @@ export default function PokemonSideBar() {
     const shinies = useMemo(() => {
         return pokemon ? caughtShinies.filter((shiny) => shiny.pokemon_name === pokemon.name) : [];
     }, [caughtShinies, pokemon]);
+
     const handleMarkAsHunted = () => {
         setChosenPokemon(pokemon || null);
         setIsVisible(true);
@@ -69,7 +70,7 @@ export default function PokemonSideBar() {
                                 {shinies[shinyIndex]?.nickname ? shinies[shinyIndex].nickname : ''}
                             </h2>
                         </div>
-                        {shinies.length > 0 ? (
+                        {shinies.length > 0 && shinies[shinyIndex] ? (
                             <>
                                 {shinies.length > 1 && (
                                     <>

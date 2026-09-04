@@ -45,7 +45,7 @@ export const AllPokemonProvider = ({children}: {children: ReactNode}) => {
                     if (error instanceof Error && error.message.startsWith('Unknown Generation:')) {
                         isEnd = true;
                     } else {
-                        errorToast('Something went wrong!');
+                        console.log(error);
                     }
                 }
             }
