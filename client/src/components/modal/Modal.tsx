@@ -1,9 +1,17 @@
 import {motion} from 'framer-motion';
 
-export function Modal({children, handleExit}: {children: React.ReactNode; handleExit: () => void}) {
+export function Modal({
+    children,
+    handleExit,
+    className
+}: {
+    children: React.ReactNode;
+    handleExit: () => void;
+    className?: string;
+}) {
     return (
         <motion.div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs"
+            className={`fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs ${className}`}
             initial={{opacity: 0}}
             animate={{opacity: 1}}
             exit={{opacity: 0}}

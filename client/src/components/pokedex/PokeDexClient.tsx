@@ -6,10 +6,11 @@ import PokemonSideBar from '@/components/pokedex/PokemonSideBar';
 import {SearchBar} from '@/components/pokedex/SearchBar';
 import {useAllPokemon} from '@/context/AllPokemonContext';
 import {useAuth} from '@/context/AuthContext';
+import {useScreenSize} from '@/context/ScreenSizeContext';
+import {ScreenSize} from '@/enum/ScreenSize';
 
 import {FilterValues} from '@/types/filterValues';
 
-import {Pokemon} from '@/types/pokemon';
 import {findGen} from '@/util/findGen';
 import {useRouter} from 'next/navigation';
 
@@ -19,6 +20,7 @@ export function PokeDexClient() {
     const router = useRouter();
     const {allPokemon, allGen, isReady} = useAllPokemon();
     const [searchQuery, setSearchQuery] = useState<string>('');
+
     const [filterValues, setFilterValues] = useState<FilterValues>({
         orderBy: '',
         gen: '',
@@ -30,6 +32,7 @@ export function PokeDexClient() {
         maxDateCaught: ''
     });
     const {user, authReady} = useAuth();
+    const {screenSize} = useScreenSize();
     useEffect(() => {
         if (!user && authReady) {
             router.replace('/login');
@@ -73,8 +76,23 @@ export function PokeDexClient() {
         <div className="relative flex min-h-0 flex-1 flex-row w-full overflow-hidden bg-tertiary">
             <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
                 <div className="flex flex-col justify-center items-center m-2">
-                    <SearchBar value={searchQuery} setSearchQuery={setSearchQuery} />
-                    <FilterBar filterValues={filterValues} setFilterValues={setFilterValues} />
+                    {screenSize == ScreenSize.LG ? (
+                        <>
+                            <SearchBar value={searchQuery} setSearchQuery={setSearchQuery} />
+                            <FilterBar
+                                filterValues={filterValues}
+                                setFilterValues={setFilterValues}
+                            />
+                        </>
+                    ) : (
+                        <div className="w-3/4 flex justify-center items-center gap-2">
+                            <SearchBar value={searchQuery} setSearchQuery={setSearchQuery} />
+                            <FilterBar
+                                filterValues={filterValues}
+                                setFilterValues={setFilterValues}
+                            />
+                        </div>
+                    )}
                     <PokeDexProgessBar
                         matchingPokemonLength={matchingPokemon.length}
                         filterValues={filterValues}
@@ -82,6 +100,7 @@ export function PokeDexClient() {
                 </div>
                 <PokemonCollection filterValues={filterValues} allPokemon={matchingPokemon} />
             </div>
+
             <PokemonSideBar />
         </div>
     );

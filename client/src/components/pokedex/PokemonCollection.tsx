@@ -3,7 +3,7 @@
 import {useUserPokemonData} from '@/context/UserPokemonData';
 import {Pokemon} from '@/types/pokemon';
 import CaughtShiny from '@/types/caught_shinies';
-import {useMemo, useRef} from 'react';
+import {useEffect, useMemo, useRef, useState} from 'react';
 import {useVirtualizer} from '@tanstack/react-virtual';
 import {PokemonIcon} from './PokemonIcon';
 import {FilterValues} from '@/types/filterValues';
@@ -17,8 +17,22 @@ export default function PokemonCollection({allPokemon, filterValues}: PokemonCol
     const {caughtShinies} = useUserPokemonData();
     const parentRef = useRef<HTMLDivElement>(null);
 
-    const COLUMN_COUNT = 13;
     const CARD_SIZE = 110;
+    const [columnCount, setColumnCount] = useState(1);
+    useEffect(() => {
+        if (!parentRef.current) return;
+
+        const observer = new ResizeObserver(([entry]) => {
+            const width = entry.contentRect.width;
+
+            setColumnCount(Math.max(1, Math.floor(width / CARD_SIZE)));
+        });
+
+        observer.observe(parentRef.current);
+
+        return () => observer.disconnect();
+    }, []);
+    const COLUMN_COUNT = columnCount;
     const matchingCaughtShinies = useMemo(() => {
         return caughtShinies
             .filter((shiny) => {
@@ -107,39 +121,45 @@ export default function PokemonCollection({allPokemon, filterValues}: PokemonCol
                 {rowVirtualizer.getVirtualItems().map((virtualRow) => {
                     const startIndex = virtualRow.index * COLUMN_COUNT;
 
+                    const rowPokemon = displayedPokemon.slice(
+                        startIndex,
+                        startIndex + COLUMN_COUNT
+                    );
+
+                    const isLastIncompleteRow = rowPokemon.length < COLUMN_COUNT;
+
                     return (
                         <div
                             key={virtualRow.key}
                             style={{
                                 position: 'absolute',
                                 top: virtualRow.start,
-                                width: '100%'
+                                width: '100%',
+                                gridTemplateColumns: `repeat(${COLUMN_COUNT}, minmax(0, 1fr))`
                             }}
-                            className="flex gap-1"
+                            className="grid justify-items-center"
                         >
-                            {displayedPokemon
-                                .slice(startIndex, startIndex + COLUMN_COUNT)
-                                .map((pokemon) => {
-                                    const pokemonData =
-                                        'pokemon_name' in pokemon
-                                            ? allPokemon.find(
-                                                  (p) => p.name === pokemon.pokemon_name
-                                              )
-                                            : pokemon;
+                            {rowPokemon.map((pokemon) => {
+                                const pokemonData =
+                                    'pokemon_name' in pokemon
+                                        ? allPokemon.find(
+                                              (item) => item.name === pokemon.pokemon_name
+                                          )
+                                        : pokemon;
 
-                                    const pokemonName =
-                                        'pokemon_name' in pokemon
-                                            ? pokemon.pokemon_name
-                                            : pokemon.name;
+                                const pokemonName =
+                                    'pokemon_name' in pokemon
+                                        ? pokemon.pokemon_name
+                                        : pokemon.name;
 
-                                    return (
-                                        <PokemonIcon
-                                            key={pokemon.id}
-                                            pokemon={pokemonData}
-                                            caughtList={shiniesByPokemon.get(pokemonName) ?? []}
-                                        />
-                                    );
-                                })}
+                                return (
+                                    <PokemonIcon
+                                        key={pokemon.id}
+                                        pokemon={pokemonData}
+                                        caughtList={shiniesByPokemon.get(pokemonName) ?? []}
+                                    />
+                                );
+                            })}
                         </div>
                     );
                 })}

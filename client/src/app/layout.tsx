@@ -10,6 +10,7 @@ import {Toaster} from 'react-hot-toast';
 import {AddPokemonForm} from '@/components/modal/AddPokemonForm';
 import {AddPokemonModelProvider} from '@/context/AddPokemonModalContext';
 import {UserPokemonDataProvider} from '@/context/UserPokemonData';
+import {ScreenSizeProvider} from '@/context/ScreenSizeContext';
 
 const sora = Sora({subsets: ['latin'], weight: ['400', '700']});
 
@@ -29,23 +30,25 @@ export default function RootLayout({
     return (
         <html lang="en" className={`${sora.className} h-full antialiased `}>
             <body className="flex h-screen flex-col overflow-hidden bg-tertiary">
-                <AuthProvider>
-                    <UserPokemonDataProvider>
-                        <AddPokemonModelProvider>
-                            <NavBar />
+                <ScreenSizeProvider>
+                    <AuthProvider>
+                        <UserPokemonDataProvider>
+                            <AddPokemonModelProvider>
+                                <NavBar />
 
-                            <AllPokemonProvider>
-                                <main className="flex min-h-0 flex-1 overflow-hidden bg-tertiary">
-                                    <PageTransition>{children}</PageTransition>
-                                    <Toaster />
-                                </main>
+                                <AllPokemonProvider>
+                                    <main className="flex min-h-0 flex-1 overflow-hidden bg-tertiary">
+                                        <PageTransition>{children}</PageTransition>
+                                        <Toaster />
+                                    </main>
 
-                                <AddPokemonForm />
-                            </AllPokemonProvider>
-                        </AddPokemonModelProvider>
-                    </UserPokemonDataProvider>
-                    <Footer />
-                </AuthProvider>
+                                    <AddPokemonForm />
+                                </AllPokemonProvider>
+                            </AddPokemonModelProvider>
+                        </UserPokemonDataProvider>
+                        <Footer />
+                    </AuthProvider>
+                </ScreenSizeProvider>
             </body>
         </html>
     );
