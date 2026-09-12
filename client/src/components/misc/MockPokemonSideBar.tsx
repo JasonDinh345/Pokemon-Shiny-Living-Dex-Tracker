@@ -18,7 +18,11 @@ export function MockPokemonSideBar({
 }: MockPokemonSideBarProps) {
     return (
         <div
-            className={`flex w-3/8 shrink-0 flex-col items-center overflow-hidden border-4 border-darkprimary p-2 bg-secondary gap-2 rounded-4xl h-4/5 shadow-normal ${classname}`}
+            className={`flex w-full max-w-70 shrink-0 flex-col items-center gap-1.5 overflow-hidden rounded-4xl border-4 border-darkprimary bg-secondary p-2 shadow-normal
+    sm:max-w-xs
+    md:max-w-md
+    lg:h-auto lg:w-[clamp(25rem,37.5%,32rem)] lg:max-w-none
+    ${classname}`}
         >
             <>
                 <Image
@@ -26,24 +30,25 @@ export function MockPokemonSideBar({
                     alt={`Shiny ${mockPokemon.pokemon_name}`}
                     width={200}
                     height={200}
-                    className="bg-tertiary p-2 rounded-2xl shadow-normal ring-4 ring-primary mt-2"
+                    sizes="(max-width: 640px) 112px, (max-width: 1024px) 144px, 192px"
+                    className="mt-1 size-28 rounded-2xl bg-tertiary p-2 shadow-normal ring-4 ring-primary sm:mt-2 sm:size-36 lg:size-48"
                 />
-                <div className=" flex flex-col gap-2 justify-center items-center">
-                    {' '}
-                    <div className=" flex flex-row gap-2">
-                        <h1 className="text-2xl font-bold">
-                            {' '}
-                            <span className="text-gray-500 font-normal">#{pokemonID} </span>{' '}
+                <div className="flex flex-col items-center justify-center gap-1 sm:gap-2">
+                    <div className="flex flex-row gap-2">
+                        <h1 className="text-lg font-bold sm:text-xl lg:text-2xl">
+                            <span className="font-normal text-gray-500">#{pokemonID} </span>
                             {capitilize(mockPokemon.pokemon_name)}
                         </h1>
                     </div>
-                    <h2 className="text-xl font-normal">
+                    <h2 className="text-base font-normal sm:text-lg lg:text-xl">
                         {mockPokemon.nickname ? mockPokemon.nickname : ''}
                     </h2>
                 </div>
                 {isCaught ? (
-                    <div className="bg-tertiary rounded-4xl p-4 shadow-normal border-2 border-primary w-4/5 mt-2 flex flex-col gap-2">
-                        <h2 className="text-2xl text-center underline font-bold">Hunt Info</h2>
+                    <div className="mt-1 flex w-11/12 flex-col gap-1 rounded-4xl border-2 border-primary bg-tertiary p-3 shadow-normal sm:mt-2 sm:gap-2 sm:p-4 [&_p]:text-sm sm:[&_p]:text-base">
+                        <h2 className="text-center text-lg font-bold underline sm:text-xl lg:text-2xl">
+                            Hunt Info
+                        </h2>
                         <ShinyInfo label="Game" value={mockPokemon.game} />
 
                         <ShinyInfo label="Method" value={mockPokemon.method} />
