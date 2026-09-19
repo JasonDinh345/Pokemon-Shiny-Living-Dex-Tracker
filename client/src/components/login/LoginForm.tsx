@@ -5,7 +5,8 @@ import {errorToast} from '@/util/toast';
 import axios from 'axios';
 import {useRouter} from 'next/navigation';
 import {useState} from 'react';
-import Image from 'next/image';
+
+import GoogleLoginButton from './GoogleLoginButton';
 type LoginFormProps = {
     setIsRegistering: (isRegistering: boolean) => void;
 };
@@ -39,7 +40,7 @@ export default function LoginForm({setIsRegistering}: LoginFormProps) {
     };
     return (
         <div
-            className={`flex flex-col justify-start items-center border-gray-700 pr-32 bg-tertiary w-2/5 h-full p-24`}
+            className={`flex flex-col justify-start items-center border-gray-700 pr-32 bg-tertiary w-2/5 h-full p-24 gap-2`}
         >
             <h1 className="text-4xl text-center font-bold"> PrismaDex</h1>
             <h3 className="pt-4 text-xl text-center ">✨Welcome back!✨</h3>
@@ -63,8 +64,10 @@ export default function LoginForm({setIsRegistering}: LoginFormProps) {
                     value="Login"
                 />
                 {error && <p className="text-red-400 italic">{error}</p>}
-                <p onClick={() => setIsRegistering(true)}>New User?</p>
             </form>
+            <p>or</p>
+            {<GoogleLoginButton />}
+            <p onClick={() => setIsRegistering(true)}>New User?</p>
         </div>
     );
 }

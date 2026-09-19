@@ -18,8 +18,8 @@ import client from '../lib/google';
  * @param res result of the request
  */
 export const googleLogin = async (req: Request, res: Response) => {
-    const {token} = req.body;
-    if (!token) {
+    const {credential} = req.body;
+    if (!credential) {
         res.status(400).json({error: 'Missing Google token'});
         return;
     }
@@ -27,7 +27,7 @@ export const googleLogin = async (req: Request, res: Response) => {
 
     try {
         const ticket = await client.verifyIdToken({
-            idToken: token,
+            idToken: credential,
             audience: process.env.GOOGLE_CLIENT_ID
         });
 

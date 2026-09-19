@@ -75,7 +75,7 @@ export function PokeDexClient() {
     return (
         <div className="relative flex min-h-0 flex-1 flex-row w-full overflow-hidden bg-tertiary">
             <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-                <div className="flex flex-col justify-center items-center m-2">
+                <div className="flex flex-col justify-center items-center m-2 gap-2">
                     {screenSize == ScreenSize.LG ? (
                         <>
                             <SearchBar value={searchQuery} setSearchQuery={setSearchQuery} />

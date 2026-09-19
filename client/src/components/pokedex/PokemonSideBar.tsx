@@ -56,7 +56,7 @@ export default function PokemonSideBar() {
         <div
             className={`flex shrink-0 flex-col items-center overflow-hidden border-2 gap-2 lg:border-l-primary border-secondary bg-secondary ${
                 screenSize == ScreenSize.LG
-                    ? 'static h-full w-1/5'
+                    ? 'static h-full w-1/4'
                     : 'max-h-[85vh] w-[min(90vw,28rem)] overflow-y-auto'
             }`}
         >
@@ -91,14 +91,14 @@ export default function PokemonSideBar() {
                                     <DupeShinySelector shinies={shinies} />
                                 </>
                             )}
-                            <div className="bg-tertiary rounded-4xl p-4 shadow-normal border-2 border-primary w-4/5 mt-2 flex flex-col gap-2 relative">
+                            <div className="bg-tertiary rounded-4xl p-4 shadow-normal border-2 border-primary w-4/5 mt-2 flex flex-col gap-2 relative pr-8">
                                 <svg
                                     xmlns="http://www.w3.org/2000/svg"
                                     fill="none"
                                     viewBox="0 0 24 24"
                                     strokeWidth={1.5}
                                     stroke="currentColor"
-                                    className="size-6 absolute right-0 -translate-x-6 hover:text-primary transition-colors duration-75 ease-in"
+                                    className="size-6 absolute top-4 right-2 hover:text-primary transition-colors duration-75 ease-in cursor-pointer"
                                     onClick={handleEdit}
                                 >
                                     <path

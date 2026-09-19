@@ -54,7 +54,7 @@ export default function RegisterForm({setIsRegistering}: RegisterFormProps) {
     };
     //SETUP REDIRECT AFTER SUCCESSFUL REGISTER
     return (
-        <div className="flex flex-col justify-start items-center border-gray-700 pr-32 bg-tertiary w-2/5 h-full p-24">
+        <div className="flex flex-col justify-start items-center border-gray-700 pr-32 bg-tertiary w-2/5 h-full p-24 gap-2">
             <h1 className="text-4xl text-center font-bold">Welcome to PrismaDex!</h1>
             <h3 className="pt-4 text-xl text-center ">✨Start your Dex today!✨</h3>
 
@@ -89,9 +89,8 @@ export default function RegisterForm({setIsRegistering}: RegisterFormProps) {
                     className="bg-primary p-2 rounded-3xl border-2 hover:text-black text-secondary border-black shadow-normal transition-all duration-100 ease-in hover:bg-darkprimary hover:shadow-[2px_2px_3px_gray]"
                     value="Register Now"
                 />
-
-                <p onClick={() => setIsRegistering(false)}>Existing User?</p>
             </form>
+            <p onClick={() => setIsRegistering(false)}>Existing User?</p>
         </div>
     );
 }

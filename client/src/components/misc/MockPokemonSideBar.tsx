@@ -20,7 +20,7 @@ export function MockPokemonSideBar({
         <div
             className={`flex w-full max-w-70 shrink-0 flex-col items-center gap-1.5 overflow-hidden rounded-4xl border-4 border-darkprimary bg-secondary p-2 shadow-normal
     sm:max-w-xs
-    md:max-w-md
+    
     lg:h-auto lg:w-[clamp(25rem,37.5%,32rem)] lg:max-w-none
     ${classname}`}
         >

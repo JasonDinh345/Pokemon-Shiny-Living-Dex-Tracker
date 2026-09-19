@@ -36,7 +36,7 @@ export function PokeDexProgessBar({filterValues, matchingPokemonLength}: PokeDex
     }, [matchingCaughtShinies]);
 
     return (
-        <div className="flex flex-row justify-center items-center h-10 gap-2">
+        <div className="flex flex-row justify-center items-center h-10 gap-2 w-full">
             {filterValues.gen ? (
                 <>
                     <div className="w-2xl h-4/5 relative">
@@ -57,7 +57,7 @@ export function PokeDexProgessBar({filterValues, matchingPokemonLength}: PokeDex
                 </>
             ) : (
                 <>
-                    <div className="w-2xl h-4/5 relative">
+                    <div className="w-4/5 h-4/5 relative">
                         <progress
                             max={allPokemon.length}
                             value={shiniesByPokemon.size}

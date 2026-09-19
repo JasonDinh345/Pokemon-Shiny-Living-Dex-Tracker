@@ -12,12 +12,14 @@ type AuthContextType = {
     user?: {email: string; username: string};
     authReady: boolean;
     register: (data: {email: string; password: string; username: string}) => void;
+    googleLogin: (response: {credential: string}) => void;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{children: React.ReactNode}> = ({children}) => {
     const [user, setUser] = useState<{email: string; username: string}>();
     const [authReady, setAuthReady] = useState<boolean>(false);
+    const router = useRouter();
     useEffect(() => {
         setAuthReady(false);
 
@@ -48,14 +50,26 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({children}) 
         const res = await api.post('/auth/login', data);
         setUser(res.data);
     };
+    const googleLogin = async (response: {credential: string}) => {
+        try {
+            const res = await api.post('/auth/login/google', {
+                credential: response.credential
+            });
 
+            setUser(res.data);
+
+            router.push('/pokedex');
+        } catch (error) {
+            console.error(error);
+        }
+    };
     const logout = async () => {
         await api.delete('/auth/logout');
         setUser(undefined);
     };
 
     return (
-        <AuthContext.Provider value={{login, logout, user, register, authReady}}>
+        <AuthContext.Provider value={{login, logout, user, register, authReady, googleLogin}}>
             {children}
         </AuthContext.Provider>
     );

@@ -68,18 +68,7 @@ function FilterOptions({filterValues, setFilterValues}: FilterBarProps) {
     const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const {name, value} = event.target;
 
-        setFilterValues((previous) => {
-            switch (name) {
-                case 'gen':
-                    return {...previous, gen: value, game: ''};
-
-                case 'game':
-                    return {...previous, game: value, gen: ''};
-
-                default:
-                    return {...previous, [name]: value};
-            }
-        });
+        setFilterValues((previous) => ({...previous, [name]: value}));
     };
 
     return (
@@ -95,7 +84,7 @@ function FilterOptions({filterValues, setFilterValues}: FilterBarProps) {
                         </option>
                     ))}
                 </Select>
-                or
+                |
                 <Select onChange={handleChange} value={filterValues.game} name="game">
                     <option value="" disabled>
                         Game
@@ -165,7 +154,6 @@ function FilterOptions({filterValues, setFilterValues}: FilterBarProps) {
                     className="flex flex-row items-center justify-center bg-secondary border-2 border-primary rounded-2xl pl-2 pr-2 gap-2 hover:bg-primary  hover:border-darkprimary hover:text-secondary transition-colors duration-75 ease-in shadow-normal"
                     onClick={resetFilter}
                 >
-                    <p>Reset</p>
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
                         fill="none"

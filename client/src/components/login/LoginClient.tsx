@@ -13,7 +13,7 @@ export function LoginClient() {
             className={`relative flex flex-1 flex-row items-center justify-between w-screen bg-tertiary overflow-hidden rounded-l-md`}
         >
             <motion.div
-                className="absolute top-0 left-0 w-3/5 h-full bg-primary flex flex-col items-center justify-evenly gap-2"
+                className="absolute top-0 left-0 w-3/5 h-full bg-primary flex flex-col items-center justify-evenly gap-2 z-10"
                 initial={{
                     borderTopRightRadius: '2rem',
                     borderBottomRightRadius: '2rem'

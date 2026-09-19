@@ -64,7 +64,7 @@ export default function Home() {
                     </button>
                 </div>
             </div>
-            <div className="w-1/2 flex ">
+            <div className="w-1/2 flex lg:justify-start lg:items-start  justify-center items-center">
                 <MockPokemonSideBar
                     mockPokemon={mockShines[0]}
                     pokemonID={718}

@@ -33,10 +33,12 @@ export default function PokemonCollection({allPokemon, filterValues}: PokemonCol
         return () => observer.disconnect();
     }, []);
     const COLUMN_COUNT = columnCount;
+    console.log(filterValues);
     const matchingCaughtShinies = useMemo(() => {
         return caughtShinies
             .filter((shiny) => {
                 // Search
+
                 if (filterValues.game && shiny.game !== filterValues.game) {
                     return false;
                 }
@@ -44,8 +46,8 @@ export default function PokemonCollection({allPokemon, filterValues}: PokemonCol
                 // Minimum encounters
                 if (
                     filterValues.minEncounters !== '' &&
-                    shiny.encounters &&
-                    shiny.encounters < Number(filterValues.minEncounters)
+                    (!shiny.encounters ||
+                        (shiny.encounters && shiny.encounters < Number(filterValues.minEncounters)))
                 ) {
                     return false;
                 }
@@ -53,8 +55,26 @@ export default function PokemonCollection({allPokemon, filterValues}: PokemonCol
                 // Maximum encounters
                 if (
                     filterValues.maxEncounters !== '' &&
-                    shiny.encounters &&
-                    shiny.encounters > Number(filterValues.maxEncounters)
+                    (!shiny.encounters ||
+                        (shiny.encounters && shiny.encounters > Number(filterValues.maxEncounters)))
+                ) {
+                    return false;
+                }
+                if (
+                    filterValues.minHuntStart !== '' &&
+                    (!shiny.hunt_started ||
+                        (shiny.hunt_started &&
+                            shiny.hunt_started < new Date(filterValues.minHuntStart)))
+                ) {
+                    return false;
+                }
+
+                // Maximum encounters
+                if (
+                    filterValues.maxDateCaught !== '' &&
+                    (!shiny.date_caught ||
+                        (shiny.date_caught &&
+                            shiny.date_caught > new Date(filterValues.maxDateCaught)))
                 ) {
                     return false;
                 }
@@ -97,7 +117,13 @@ export default function PokemonCollection({allPokemon, filterValues}: PokemonCol
     }, [matchingCaughtShinies]);
 
     const displayedPokemon =
-        filterValues.orderBy && Number(filterValues.orderBy) > 2
+        (filterValues.orderBy && Number(filterValues.orderBy) > 2) ||
+        filterValues.maxEncounters ||
+        filterValues.minEncounters ||
+        filterValues.minHuntStart ||
+        filterValues.maxDateCaught ||
+        filterValues.minEncounters ||
+        filterValues.game
             ? matchingCaughtShinies
             : allPokemon;
 
@@ -112,58 +138,60 @@ export default function PokemonCollection({allPokemon, filterValues}: PokemonCol
 
     return (
         <div ref={parentRef} className="flex-1 min-h-0 overflow-y-auto">
-            <div
-                style={{
-                    height: rowVirtualizer.getTotalSize(),
-                    position: 'relative'
-                }}
-            >
-                {rowVirtualizer.getVirtualItems().map((virtualRow) => {
-                    const startIndex = virtualRow.index * COLUMN_COUNT;
+            {displayedPokemon.length > 0 ? (
+                <div
+                    style={{
+                        height: rowVirtualizer.getTotalSize(),
+                        position: 'relative'
+                    }}
+                >
+                    {rowVirtualizer.getVirtualItems().map((virtualRow) => {
+                        const startIndex = virtualRow.index * COLUMN_COUNT;
 
-                    const rowPokemon = displayedPokemon.slice(
-                        startIndex,
-                        startIndex + COLUMN_COUNT
-                    );
+                        const rowPokemon = displayedPokemon.slice(
+                            startIndex,
+                            startIndex + COLUMN_COUNT
+                        );
 
-                    const isLastIncompleteRow = rowPokemon.length < COLUMN_COUNT;
+                        return (
+                            <div
+                                key={virtualRow.key}
+                                style={{
+                                    position: 'absolute',
+                                    top: virtualRow.start,
+                                    width: '100%',
+                                    gridTemplateColumns: `repeat(${COLUMN_COUNT}, minmax(0, 1fr))`
+                                }}
+                                className="grid justify-items-center"
+                            >
+                                {rowPokemon.map((pokemon) => {
+                                    const pokemonData =
+                                        'pokemon_name' in pokemon
+                                            ? allPokemon.find(
+                                                  (item) => item.name === pokemon.pokemon_name
+                                              )
+                                            : pokemon;
 
-                    return (
-                        <div
-                            key={virtualRow.key}
-                            style={{
-                                position: 'absolute',
-                                top: virtualRow.start,
-                                width: '100%',
-                                gridTemplateColumns: `repeat(${COLUMN_COUNT}, minmax(0, 1fr))`
-                            }}
-                            className="grid justify-items-center"
-                        >
-                            {rowPokemon.map((pokemon) => {
-                                const pokemonData =
-                                    'pokemon_name' in pokemon
-                                        ? allPokemon.find(
-                                              (item) => item.name === pokemon.pokemon_name
-                                          )
-                                        : pokemon;
+                                    const pokemonName =
+                                        'pokemon_name' in pokemon
+                                            ? pokemon.pokemon_name
+                                            : pokemon.name;
 
-                                const pokemonName =
-                                    'pokemon_name' in pokemon
-                                        ? pokemon.pokemon_name
-                                        : pokemon.name;
-
-                                return (
-                                    <PokemonIcon
-                                        key={pokemon.id}
-                                        pokemon={pokemonData}
-                                        caughtList={shiniesByPokemon.get(pokemonName) ?? []}
-                                    />
-                                );
-                            })}
-                        </div>
-                    );
-                })}
-            </div>
+                                    return (
+                                        <PokemonIcon
+                                            key={pokemon.id}
+                                            pokemon={pokemonData}
+                                            caughtList={shiniesByPokemon.get(pokemonName) ?? []}
+                                        />
+                                    );
+                                })}
+                            </div>
+                        );
+                    })}
+                </div>
+            ) : (
+                <p className="flex items-center justify-center">No Pokemon matching filters!</p>
+            )}
         </div>
     );
 }
