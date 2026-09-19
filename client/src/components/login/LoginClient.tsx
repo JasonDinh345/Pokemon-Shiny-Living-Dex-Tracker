@@ -5,15 +5,17 @@ import RegisterForm from '@/components/login/RegisterForm';
 import {motion} from 'motion/react';
 import {useState} from 'react';
 import Image from 'next/image';
+import {useScreenSize} from '@/context/ScreenSizeContext';
+import {ScreenSize} from '@/enum/ScreenSize';
 export function LoginClient() {
     const [isRegistering, setIsRegistering] = useState<boolean>(false);
-
+    const {screenSize} = useScreenSize();
     return (
         <div
-            className={`relative flex flex-1 flex-row items-center justify-between w-screen bg-tertiary overflow-hidden rounded-l-md`}
+            className={`relative flex flex-1 flex-row items-center justify-center lg:justify-between w-full bg-tertiary overflow-hidden rounded-l-md`}
         >
             <motion.div
-                className="absolute top-0 left-0 w-3/5 h-full bg-primary flex flex-col items-center justify-evenly gap-2 z-10"
+                className="hidden lg:flex absolute top-0 left-0 w-3/5 h-full bg-primary flex-col items-center justify-evenly gap-2 z-10"
                 initial={{
                     borderTopRightRadius: '2rem',
                     borderBottomRightRadius: '2rem'
@@ -32,7 +34,7 @@ export function LoginClient() {
             >
                 <div className="w-1/2 flex flex-col items-center gap-2">
                     <motion.h1
-                        className="font-bold text-4xl text-secondary shadow-norm"
+                        className="font-bold text-4xl text-secondary shadow-norm text-center"
                         initial={{opacity: 0, y: 10}}
                         animate={{opacity: 1, y: 0}}
                         transition={{
@@ -90,7 +92,7 @@ export function LoginClient() {
                     />
                 </motion.div>
                 <motion.p
-                    className="font-bold text-2xl text-secondary shadow-norm"
+                    className="font-bold text-2xl text-secondary shadow-norm p-2 text-center"
                     initial={{opacity: 0, y: 10}}
                     animate={{opacity: 1, y: 0}}
                     transition={{
@@ -104,9 +106,21 @@ export function LoginClient() {
                 </motion.p>
             </motion.div>
 
-            <RegisterForm setIsRegistering={setIsRegistering} />
+            {screenSize == ScreenSize.LG ? (
+                <>
+                    <RegisterForm setIsRegistering={setIsRegistering} />
 
-            <LoginForm setIsRegistering={setIsRegistering} />
+                    <LoginForm setIsRegistering={setIsRegistering} />
+                </>
+            ) : (
+                <>
+                    {isRegistering ? (
+                        <RegisterForm setIsRegistering={setIsRegistering} />
+                    ) : (
+                        <LoginForm setIsRegistering={setIsRegistering} />
+                    )}
+                </>
+            )}
         </div>
     );
 }
