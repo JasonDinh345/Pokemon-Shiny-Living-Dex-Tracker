@@ -60,7 +60,7 @@ export default function RegisterForm({setIsRegistering}: RegisterFormProps) {
 
             <form
                 onSubmit={handleSubmit}
-                className="pt-8 flex flex-col justify-center gap-4 lg:w-1/2"
+                className="pt-8 flex flex-col justify-center gap-4 w-full lg:w-1/2"
             >
                 <LabelInput
                     type={'email'}

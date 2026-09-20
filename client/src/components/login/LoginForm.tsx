@@ -40,7 +40,7 @@ export default function LoginForm({setIsRegistering}: LoginFormProps) {
     };
     return (
         <div
-            className={`flex flex-col justify-start items-center border-gray-700 lg:pr-32 pt-24 lg:pt:0 bg-tertiary lg:w-2/5 h-full lg:p-24 gap-2`}
+            className={`flex flex-col justify-start items-center border-gray-700  lg:pr-32 pt-24 lg:pt:0 bg-tertiary lg:w-2/5 h-full lg:p-24 gap-2`}
         >
             <h1 className="text-4xl text-center font-bold"> PrismaDex</h1>
             <h3 className="pt-4 text-xl text-center ">✨Welcome back!✨</h3>
@@ -61,6 +61,7 @@ export default function LoginForm({setIsRegistering}: LoginFormProps) {
                     label="Password"
                     autoComplete="current-password"
                 />
+                <p onClick={() => router.push('/reset-password')}>Forgot Password?</p>
                 <input
                     className="bg-primary p-2 rounded-3xl border-2 hover:text-black text-secondary border-black shadow-normal transition-all duration-100 ease-in hover:bg-darkprimary hover:shadow-[2px_2px_3px_gray]"
                     type="submit"

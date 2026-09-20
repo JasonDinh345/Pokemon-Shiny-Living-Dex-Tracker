@@ -39,16 +39,18 @@ export default function VerifyEmailPage() {
     }, [searchParams, router]);
 
     return (
-        <div className="flex flex-col justify-center items-center p-4 bg-[#f8f8ff] mt-4 rounded-xl border-2 border-gray-400 gap-4 w-md shadow-[4px_5px_3px_gray]">
-            {icon}
+        <div className="size-full flex justify-center">
+            <div className="flex flex-col h-1/3 justify-center items-center p-4 bg-[#f8f8ff] mt-4 rounded-xl border-2 border-gray-400 gap-4 w-md shadow-[4px_5px_3px_gray]">
+                {icon}
 
-            <h1>{message}</h1>
+                <h1>{message}</h1>
 
-            {success && (
-                <button className="rounded-lg border-2 border-gray-400 p-2 hover:bg-gray-200 shadow-[4px_5px_3px_gray]">
-                    Go to Login
-                </button>
-            )}
+                {success && (
+                    <button className="rounded-lg border-2 border-gray-400 p-2 hover:bg-gray-200 shadow-[4px_5px_3px_gray]">
+                        Go to Login
+                    </button>
+                )}
+            </div>
         </div>
     );
 }
