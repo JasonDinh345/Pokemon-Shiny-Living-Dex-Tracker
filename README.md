@@ -23,6 +23,7 @@ The purpose of this project was to reinforce my knowledge with Next.js and to le
       <li>Better UI</li>
       <li>More features</li>
       <li>Tweaks for a smoother expirence</li>
+      <li>Pivot to serverless to reduce costs</li>
      
   </ul>
 <h1>Known Issues</h1>
